@@ -1,15 +1,15 @@
 {
-  "name": "datasheet-assistant",
+  "name": "xinzh-datasheet-reader",
   "version": "0.1.0",
+  "description": "芯知 · 英文芯片手册阅读器",
+  "main": "electron/main.cjs",
+  "author": "abraxasLi",
   "private": true,
-  "engines": {
-    "node": ">=22.13.0"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dist:exe": "powershell -ExecutionPolicy Bypass -File tools/build-exe.ps1"
   },
   "dependencies": {
     "next": "^15.5.6",
@@ -22,9 +22,54 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.6",
     "playwright-core": "^1.65.0",
     "typescript": "^5.9.3"
+  },
+  "build": {
+    "appId": "com.xinzh.datasheetreader",
+    "productName": "芯知",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      ".next-app/standalone/**/*",
+      ".next-app/static/**/*",
+      "public/**/*",
+      "runtime/**/*",
+      ".runtime/**/*",
+      "models/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "芯知-${version}-安装包.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "芯知"
+    },
+    "asar": true,
+    "asarUnpack": [
+      ".runtime/**/*",
+      "models/**/*",
+      "runtime/**/*"
+    ]
   }
 }
