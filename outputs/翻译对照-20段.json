@@ -1,0 +1,328 @@
+{
+  "generatedAt": "2026-11-13T09:48:13.733Z",
+  "pdf": "rm0008-en.pdf",
+  "count": 20,
+  "llmModel": "glm-5.3-flash",
+  "items": [
+    {
+      "id": 1,
+      "category": "note",
+      "categoryLabel": "注意事项/警告",
+      "page": 58,
+      "source": "Note: For further information on the Flash memory interface registers, refer to the:“STM32F10xxx XL-density Flash programming manual” (PM0068) for XL-density devices, “STM32F10xxx Flash programming manual” (PM0075) for other devices.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "注:关于Flash内存接口登记册的进一步信息,请参见:XL密度设备的\"STM32F10xxxXL密度Flash编程手册\"(PM0068),其他设备的\"STM32F10xxxxxFlash编程手册\"(PM0075).",
+        "ms": 210.6
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "注意：有关Flash存储器接口寄存器的更多信息，对于XL-density器件，请参阅《STM32F10xxx XL-density Flash编程手册》(PM0068)；对于其他器件，请参阅《STM32F10xxx Flash编程手册》(PM0075)。"
+      }
+    },
+    {
+      "id": 2,
+      "category": "unit",
+      "categoryLabel": "数值与单位",
+      "page": 67,
+      "source": "The device requires a 2.0-to-3.6 V operating voltage supply (VDD). An embedded regulator is used to supply the internal 1.8 V digital power. The real-time clock (RTC) and backup registers can be powered from the VBAT voltage when the main VDD supply is powered off.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "该设备需要2.0至3.6 V操作电压供给(VDD),内置调节器用于提供内部1.8 V数字电源,当VDD主要供电时,实时时钟(RTC)和备份登记器可以从VBAT电压中供电.",
+        "ms": 175
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "该器件需要2.0 V至3.6 V的工作电压供电(VDD)。内置稳压器用于提供内部1.8 V数字电源。当主VDD电源断电时，实时时钟(RTC)和备份寄存器可由VBAT电压供电。"
+      }
+    },
+    {
+      "id": 3,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 84,
+      "source": "Note: Setting the TPAL and TPE bits at the same time is always safe, however resetting both at the same time can generate a spurious Tamper event. For this reason it is recommended to change the TPAL bit only when the TPE bit is reset.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "注:同时设置TPAL和TPE比特总是安全的,然而同时重置两者都会产生一个虚假的坦佩尔事件。为此原因,建议仅在TPE比特重置时才更改TPAL比特.",
+        "ms": 175.1
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "注意：同时置位 TPAL 和 TPE 位始终是安全的，但同时复位两者可能会产生虚假的 Tamper 事件。因此，建议仅当 TPE 位处于复位状态时才更改 TPAL 位。"
+      }
+    },
+    {
+      "id": 4,
+      "category": "unit",
+      "categoryLabel": "数值与单位",
+      "page": 95,
+      "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 25 MHz. You select this mode by setting the HSEBYP and HSEON bits in the Clock control register (RCC_CR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC_IN pin while the OSC_OUT pin should be left hi-Z. See Figure 9.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "在此模式下, 必须提供外部时钟源。 它的频率可达 25 MHz。 您选择此模式时, 设置时钟控制寄存器( RCC_ CR) 中的 HSEBYP 和 HSEON 位元。 任务周期为~50% 的外部时钟信号( 平方、 鼻音或三角形) 需要驱动 OSC_ IN 的标码, 而 OST 标码则应当留为 hi- Z 。 见图 9 。",
+        "ms": 310
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "在此模式下，必须提供外部时钟源，其频率最高可达25 MHz。通过置位时钟控制寄存器(RCC_CR)中的HSEBYP和HSEON位来选择此模式。占空比约为50%的外部时钟信号（方波、正弦波或三角波）必须驱动OSC_IN引脚，同时OSC_OUT引脚应保持hi-Z状态。参见图9。"
+      }
+    },
+    {
+      "id": 5,
+      "category": "unit",
+      "categoryLabel": "数值与单位",
+      "page": 96,
+      "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 1 MHz. You select this mode by setting the LSEBYP and LSEON bits in the Backup domain control register (RCC_BDCR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC32_IN pin while the OSC32_OUT pin should be left Hi-Z. See Figure 9.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "在此模式下, 必须提供外部时钟源。 它的频率可达 1 MHz。 您选择此模式时, 请在备份域控制寄存器( RCC_ BDCR) 中设置 LSEBYP 和 LSEON 位元 。 任务周期为~ 50% 的外部时钟信号( 平方、 辛努斯 或三角形) 必须驱动 OSC32_ IN 的标码, 而 OSC32_ OUT 标码则应该左侧为 Hi- Z。见图 9 。",
+        "ms": 331.2
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "在此模式下，必须提供外部时钟源。其频率最高可达1 MHz。通过置位备份域控制寄存器（RCC_BDCR）中的LSEBYP和LSEON位来选择此模式。占空比约为50%的外部时钟信号（方波、正弦波或三角波）必须驱动OSC32_IN引脚，同时OSC32_OUT引脚应保持Hi-Z状态。参见图9。"
+      }
+    },
+    {
+      "id": 6,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 107,
+      "source": "Bit 15 ADC3RST: ADC3 interface reset Set and cleared by software. 0: No effect 1: Reset ADC3 interface Bit 14 USART1RST: USART1 reset Set and cleared by software. 0: No effect 1: Reset USART1",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位15 ADC3RST: ADC3 接口重置集并被软件清除. 0:无效果1:重置ADC3接口 Bit 14 USART1RST:USART1重置集并被软件清除. 0:无效果1:重置USART1",
+        "ms": 211.5
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位15 ADC3RST：ADC3接口复位 由软件置位和清零。\n0：无效果\n1：复位ADC3接口\n\n位14 USART1RST：USART1复位 由软件置位和清零。\n0：无效果\n1：复位USART1"
+      }
+    },
+    {
+      "id": 7,
+      "category": "unit",
+      "categoryLabel": "数值与单位",
+      "page": 128,
+      "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 50 MHz. Select this mode by setting the HSEBYP and HSEON bits in the Clock control register (RCC_CR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC_IN pin while the OSC_OUT pin should be left hi-Z. See Figure 12.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "在此模式下, 必须提供外部时钟源。 它的频率可达50 MHz。 通过设置时钟控制寄存器( RCC_ CR) 中的 HSEBYP 和 HSEON 位元来选择此模式。 任务周期为~50%的外部时钟信号( 平方、 鼻音或三角形) 必须在OSC_ IN 中驱动 OSC_ OUT 标码, 而 OSC_ OUT 标码则应当留为 hi- Z 。 见图 12。",
+        "ms": 351.1
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "在此模式下，必须提供外部时钟源，其频率最高可达50 MHz。通过置位时钟控制寄存器（RCC_CR）中的HSEBYP和HSEON位来选择此模式。占空比为~50%的外部时钟信号（方波、正弦波或三角波）必须驱动OSC_IN引脚，同时OSC_OUT引脚应保持为hi-Z状态。参见图12。"
+      }
+    },
+    {
+      "id": 8,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 174,
+      "source": "Bits 31:16 Reserved Bits 15:0 BRy: Port x Reset bit y (y= 0 .. 15) These bits are write-only and can be accessed in Word mode only. 0: No action on the corresponding ODRx bit 1: Reset the corresponding ODRx bit",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位数 31: 16 保留位数 15: 0 BRY: port x Reset bit y(y= 0. 15) 这些位数只写,只能以Word模式访问. 0: 对应的在线解决比特1没有动作: 重置对应的在线解决比特",
+        "ms": 212.7
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位31:16 保留\n位15:0 BRy：端口x复位位y (y= 0 .. 15)\n这些位是只写的，且只能在字模式下访问。\n0: 对相应的ODRx位无操作\n1: 复位相应的ODRx位"
+      }
+    },
+    {
+      "id": 9,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 184,
+      "source": "Bits 31:27 Reserved Bits 26:24 SWJ_CFG[2:0]: Serial wire JTAG configuration These bits are write-only (when read, the value is undefined). They are used to configure the SWJ and trace alternate function I/Os. The SWJ (Serial Wire JTAG) supports JTAG or SWD ®",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位数 31:27 保留位数 26:24 SWJ_CFG[2:0]: 串行线 JTAG配置 这些位数只写(读取时,数值未定义),用于配置 SWJ 和 追踪替代函数 I/Os. SWJ (串行线 JTAG) 支持 JTAG 或 SSWD 。",
+        "ms": 278.9
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位 31:27 保留\n位 26:24 SWJ_CFG[2:0]：串行线 JTAG 配置\n这些位是只写的（读取时，其值未定义）。它们用于配置 SWJ 和跟踪复用功能 I/O。SWJ（串行线 JTAG）支持 JTAG 或 SWD ®"
+      }
+    },
+    {
+      "id": 10,
+      "category": "note",
+      "categoryLabel": "注意事项/警告",
+      "page": 212,
+      "source": "Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines. If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the pending bit will not be set. Rising and Falling edge triggers can be set for the same interrupt line. In this configuration, both generate a trigger condition.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "注意 : 外部醒目线是边缘触发的, 这些线上不能产生故障。 如果在 EXTI_ RTSR 寄存器的写入过程中发生外部中断线上上升的边缘, 则不会设置待发位。 上升和下降的边缘触发器可以设置在同一中断线上。 在此配置中, 两者都产生触发条件 。",
+        "ms": 281
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "注意：外部唤醒线为边沿触发，这些线上不得产生毛刺。如果在写入EXTI_RTSR寄存器期间外部中断线上出现上升沿，挂起位将不会被置位。可以为同一条中断线同时设置上升沿和下降沿触发。在此配置下，两者都会产生触发条件。"
+      }
+    },
+    {
+      "id": 11,
+      "category": "note",
+      "categoryLabel": "注意事项/警告",
+      "page": 212,
+      "source": "Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines. If a falling edge on external interrupt line occurs during writing of EXTI_FTSR register, the pending bit will not be set. Rising and Falling edge triggers can be set for the same interrupt line. In this configuration, both generate a trigger condition.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "注意: 外部醒目线是边缘触发的, 在这些线上不能产生故障。 如果在 EXTI_ FTSR 寄存器 的写入过程中发生外部中断线上掉落的边缘, 则不会设置待决位。 上升和掉落的边缘触发器可以设置在同一中断线上。 在此配置中, 两者都产生触发条件 。",
+        "ms": 236.5
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "注意：外部唤醒线为边沿触发，不得在这些线上产生毛刺。如果在写入EXTI_FTSR寄存器期间外部中断线上出现下降沿，pending位将不会置位。同一中断线可以同时设置上升沿和下降沿触发。在此配置下，两者都会产生触发条件。"
+      }
+    },
+    {
+      "id": 12,
+      "category": "note",
+      "categoryLabel": "注意事项/警告",
+      "page": 246,
+      "source": "Note: The software can write to these registers when an ADC conversion is ongoing. The programmed value will be effective when the next conversion is complete. Writing to this register is performed with a write delay that can create uncertainty on the effective time at which the new value is programmed.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "注意: 当 ADC 转换正在进行时, 软件可以写到这些登记册。 下一次转换完成后, 程序值将生效。 写入此登记册时会出现写延迟, 从而对新值编程的有效时间产生不确定性 。",
+        "ms": 117.6
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "注：当ADC转换正在进行时，软件可以写入这些寄存器。所编程的值将在下一次转换完成后生效。对该寄存器的写入操作带有写延迟，这可能导致新值实际编程生效的时间存在不确定性。"
+      }
+    },
+    {
+      "id": 13,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 250,
+      "source": "Bits 19:15 JSQ4[4:0]: fourth conversion in injected sequence (when JL[1:0] = 3) These bits are written by software with the channel number (0..17) assigned as the fourth in the sequence to be converted.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "比特 19:15 JSQ4[4:0]:注射序列中的第四次转换(当JL[1:0]=3) 这些比特由软件编写,频道编号(0.17)被指定为转换序列中的第四次.",
+        "ms": 123.5
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位19:15 JSQ4[4:0]：注入序列中的第四个转换（当 JL[1:0] = 3 时）这些位由软件写入，用于指定在待转换序列中排在第四位的通道编号（0..17）。"
+      }
+    },
+    {
+      "id": 14,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 251,
+      "source": "Bits 31:16 ADC2DATA[15:0]: ADC2 data In ADC1: In dual mode, these bits contain the regular data of ADC2. Refer to Section 11.9: Dual ADC mode. In ADC2 and ADC3: these bits are not used. Bits 15:0 DATA[15:0]: Regular data These bits are read only. They contain the conversion result from the regular channels. The data is left or right-aligned as shown in Figure 27 and Figure 28.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位数 31:16 ADC2DATA[15:0]: ADC2数据 在ADC1:双模式中,这些位数包含ADC2的正则数据. 参考第11.9节:双ADC模式. 在ADC2和ADC3中,这些位数没有使用. 位数 15:0 DATA[15:0]:这些正则数据只读取这些位数,它们包含常规通道的转换结果. 数据是左转或右转,如图27和图28所示.",
+        "ms": 381.4
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位31:16 ADC2DATA[15:0]：ADC2数据\n在ADC1中：在双模式下，这些位包含ADC2的规则通道数据。参考第11.9节：双ADC模式。\n在ADC2和ADC3中：这些位未使用。\n位15:0 DATA[15:0]：规则数据\n这些位为只读。它们包含来自规则通道的转换结果。数据为左对齐或右对齐，如图27和图28所示。"
+      }
+    },
+    {
+      "id": 15,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 271,
+      "source": "Bits 31:20 DACC2DHR[11:0]: DAC channel2 12-bit left-aligned data These bits are written by software, which specifies 12-bit data for DAC channel2. Bits 19:16 Reserved. Bits 15:4 DACC1DHR[11:0]: DAC channel1 12-bit left-aligned data These bits are written by software, which specifies 12-bit data for DAC channel1. Bits 3:0 Reserved.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位点31:20 DACC2DHR [11:0]:DAC频道2 12位左配对数据 这些位点由软件编写,为DAC频道2指定了12位数据. 位点19:16 保留. 位点15:4 DACC1DHR [11:0]:DAC频道1 12位左配对数据 这些位点由软件编写,为DAC频道1指定了12位数据 位点3:0 保留.",
+        "ms": 353.5
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位31:20 DACC2DHR[11:0]：DAC通道2 12位左对齐数据 这些位由软件写入，用于指定DAC通道2的12位数据。位19:16 保留。位15:4 DACC1DHR[11:0]：DAC通道1 12位左对齐数据 这些位由软件写入，用于指定DAC通道1的12位数据。位3:0 保留。"
+      }
+    },
+    {
+      "id": 16,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 288,
+      "source": "Bits 31:0 PA[31:0]: Peripheral address Base address of the peripheral data register from/to which the data will be read/written. When PSIZE is 01 (16-bit), the PA[0] bit is ignored. Access is automatically aligned to a half- word address. When PSIZE is 10 (32-bit), PA[1:0] are ignored. Access is automatically aligned to a word address.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位数 31: 0 PA[31:0]: 周边地址 位于将读取/写入数据的外围数据寄存器的基址。 当 PSIZE 01 (16-bit) 时, 忽略 PA[0] 位数。 访问自动对齐到半字地址。 当 PSIZE 10 (32-bit) 时, 忽略 PA[1: 0] 。 访问自动对齐到一个字地址 。",
+        "ms": 259.7
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位 31:0 PA[31:0]：外设地址\n外设数据寄存器的基地址，数据将从该寄存器读取或写入该寄存器。当 PSIZE 为 01（16 位）时，PA[0] 位被忽略。访问自动对齐到半字地址。当 PSIZE 为 10（32 位）时，PA[1:0] 被忽略。访问自动对齐到字地址。"
+      }
+    },
+    {
+      "id": 17,
+      "category": "reg",
+      "categoryLabel": "寄存器/位域定义",
+      "page": 288,
+      "source": "Bits 31:0 MA[31:0]: Memory address Base address of the memory area from/to which the data will be read/written. When MSIZE is 01 (16-bit), the MA[0] bit is ignored. Access is automatically aligned to a half-word address. When MSIZE is 10 (32-bit), MA[1:0] are ignored. Access is automatically aligned to a word address.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "位数 31: 0 MA[31:0]: 数据从/到/到的内存区域内存地址 。 当 MSIZE 01 (16-bit) 时, MA[0] 位被忽略 。 访问自动与半字地址对齐 。 当 MSIZE 10 (32-bit) 时, MA[1: 0] 被忽略 。 访问自动与一个字地址对齐 。",
+        "ms": 279.6
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "位31:0 MA[31:0]：存储器地址\n数据将从中读出/写入的存储器区域的基地址。当MSIZE为01（16-bit）时，MA[0]位被忽略。访问自动对齐到半字地址。当MSIZE为10（32-bit）时，MA[1:0]被忽略。访问自动对齐到字地址。"
+      }
+    },
+    {
+      "id": 18,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 337,
+      "source": "The TIM timers are linked together internally for timer synchronization or chaining. Refer to Section 15.3.15: Timer synchronization for details. Note: The clock of the slave timer must be enabled prior to receive events from the master timer, and must not be changed on-the-fly while triggers are received from the master timer.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "TIM定时器内部连接,用于定时器同步或链路. 参考第15.3.15节:定时器同步的细节. 注:奴隶定时器的时钟必须在接收主定时器的事件之前启用,在接收主定时器的触发器时,不得在飞行中更改.",
+        "ms": 216.6
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "TIM 定时器在内部相互连接，用于实现定时器同步或级联。有关详细信息，请参阅第 15.3.15 节：Timer synchronization（定时器同步）。注意：在接收来自主定时器的事件之前，必须先使能从定时器的时钟，并且在接收来自主定时器的触发信号期间，不得在运行中更改该时钟。"
+      }
+    },
+    {
+      "id": 19,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 355,
+      "source": "0 1 0 Then if the clock is present: OCx=OISx and OCxN=OISxN after a 0 1 1 dead-time, assuming that OISx and OISxN do not correspond to OCX and OCxN both in active state.",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "0 10,然后如果时钟存在:OCx=OISx和OCxN=OISxN在0 1死后,假设OISx和OISxN在活动状态下都与OCX和OCxN不对应.",
+        "ms": 125.9
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "0 1 0 此时若时钟存在：经过 0 1 1 死区后，OCx=OISx 且 OCxN=OISxN，前提是 OISx 和 OISxN 并非使 OCX 和 OCxN 两者都处于激活状态。"
+      }
+    },
+    {
+      "id": 20,
+      "category": "cond",
+      "categoryLabel": "否定或条件说明",
+      "page": 355,
+      "source": "0 1 X 0 0 1 0 1 Off-State (output enabled with inactive state) 1 1 0 Asynchronously: OCx=CCxP, OCx_EN=1, OCxN=CCxNP, OCxN_EN=1 Then if the clock is present: OCx=OISx and OCxN=OISxN after a 1 1 1 dead-time, assuming that OISx and OISxN do not correspond to OCX and OCxN both in active state",
+      "local": {
+        "engine": "argos-en_zh-1.9 + ctranslate2",
+        "text": "0 1 X 0 0 1 离国(输出启用与不活动状态) 1 0 同步:OCx=CCxP,OCx_EN=1,OCxN=CCxNP,OCxN_EN=1 如果时钟在11 1 个死亡时间后出现:OCx=OISx和OISxN,假设OISx和OISxN在活动状态下都与OCX和OCxN不对应.",
+        "ms": 291.8
+      },
+      "llm": {
+        "engine": "glm-5.3-flash",
+        "text": "0 1 X 0 0 1 0 1 关断状态（输出使能且为无效状态）1 1 0 异步方式：OCx=CCxP、OCx_EN=1、OCxN=CCxNP、OCxN_EN=1 然后如果时钟存在：经过 1 1 1 死区时间后，OCx=OISx 且 OCxN=OISxN（前提是 OISx 和 OISxN 与同时处于有效状态的 OCX 和 OCxN 不对应）"
+      }
+    }
+  ]
+}
