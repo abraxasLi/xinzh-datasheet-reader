@@ -80,6 +80,7 @@ export default function Home() {
   const [searching, setSearching] = useState(false);
   const [searchAnswer, setSearchAnswer] = useState<SearchAnswer | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [followTranslationEnabled, setFollowTranslationEnabled] = useState(false);
   const [translationPreviewOpen, setTranslationPreviewOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState<TranslationTarget | null>(null);
   const [translationScope, setTranslationScope] = useState<"paragraph" | "context" | "page">("paragraph");
@@ -113,14 +114,14 @@ export default function Home() {
   const [selectedText, setSelectedText] = useState("");
   const [selectionResult, setSelectionResult] = useState<{ text: string; engine?: string; ms?: number; error?: string; busy?: boolean } | null>(null);
 
-  async function translateSelection() {
-    if (!selectedText.trim()) return;
+  async function translateSelection(text = selectedText) {
+    if (!text.trim()) return;
     setSelectionResult({ text: "", busy: true });
     try {
       const response = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texts: [selectedText], provider: translationProvider }),
+        body: JSON.stringify({ texts: [text], provider: translationProvider }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "翻译失败。");
@@ -350,22 +351,40 @@ export default function Home() {
     }
   }
 
+  function openTranslationTarget(target: TranslationTarget) {
+    if (!followTranslationEnabled || translationPinned) return;
+    setTranslationTarget(target);
+    setTranslationPreviewOpen(true);
+    void translateTarget(target, translationScope);
+  }
+
   function focusTranslationTarget(target: TranslationTarget) {
-    if (translationPinned) return;
+    if (!followTranslationEnabled || translationPinned || window.getSelection()?.type === "Range") return;
     if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
     translationHoverTimer.current = setTimeout(() => {
-      setTranslationTarget(target);
-      setTranslationPreviewOpen(true);
-      void translateTarget(target, translationScope);
+      translationHoverTimer.current = null;
+      openTranslationTarget(target);
     }, 260);
   }
 
-  function pinTranslationTarget(target: TranslationTarget) {
+  function toggleFollowTranslation() {
+    const next = !followTranslationEnabled;
+    setFollowTranslationEnabled(next);
+    if (next) {
+      setTranslationPreviewOpen(true);
+      return;
+    }
     if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    setTranslationTarget(target);
-    setTranslationPinned(true);
-    setTranslationPreviewOpen(true);
-    void translateTarget(target, translationScope);
+    translationHoverTimer.current = null;
+    translationRequest.current++;
+    setTranslationTarget(null);
+    setTranslationPreviewOpen(false);
+    setTranslationPinned(false);
+    setTranslationState({ status: "idle" });
+  }
+
+  function toggleTranslationPinned() {
+    setTranslationPinned((pinned) => !pinned);
   }
 
   function changeScope(scope: typeof translationScope) {
@@ -418,6 +437,7 @@ export default function Home() {
     if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
     translationHoverTimer.current = null;
     translationRequest.current++;
+    setFollowTranslationEnabled(false);
     setTranslationTarget(null);
     setTranslationPreviewOpen(false);
     setTranslationPinned(false);
@@ -504,7 +524,7 @@ export default function Home() {
           <summary>怎么使用？</summary>
           <div>
             <p><b>找内容：</b>用中文说出你想找的东西，搜索结果会带你回到手册原文并高亮。</p>
-            <p><b>看翻译：</b>悬停在英文段落上，或用键盘 Tab 聚焦段落；面板会显示这就是这一段的中文译文。</p>
+            <p><b>看翻译：</b>默认拖动选中文字即可翻译；打开工具栏“跟随译读”后，悬停或点击英文段落才会翻译整段。</p>
             <p><b>翻译从哪来：</b>安装一次免费离线英中模型包（约 70 MB）后，整段翻译全部在本机 CPU 上完成，断网可用。</p>
             <small>没有安装模型时，只显示术语提示，不会假装已经翻译。</small>
           </div>
@@ -537,9 +557,14 @@ export default function Home() {
           <kbd>Ctrl K</kbd>
           <button type="submit" disabled={!documentId || !query.trim() || searching}>{searching ? "查找中…" : "搜索"}</button>
         </form>
-        <button className="translation-mode-button" onClick={() => setTranslationPreviewOpen((open) => !open)}>
-          {translationPreviewOpen ? "收起译读" : "跟随译读"}
-          <span>{modelReady ? "离线模型" : "未装模型"}</span>
+        <button
+          className={"translation-mode-button" + (followTranslationEnabled ? " enabled" : "")}
+          onClick={toggleFollowTranslation}
+          aria-pressed={followTranslationEnabled}
+          title={followTranslationEnabled ? "关闭后只保留划词翻译" : "打开后允许悬停/点击整段翻译"}
+        >
+          跟随译读
+          <span>{followTranslationEnabled ? "已开启" : "已关闭"}</span>
         </button>
         <button className="bitfield-button" onClick={() => { if (bitfieldOpen) setBitfieldOpen(false); else openBitfields(); }}>
           位域表
@@ -556,7 +581,7 @@ export default function Home() {
 
       <section ref={workspaceRef} className="reader-workspace" style={readerHeight ? { height: readerHeight, minHeight: readerHeight } : undefined}>
         <div
-          className={"reader-stage" + (draggingFile ? " drag-over" : "")}
+          className={"reader-stage" + (draggingFile ? " drag-over" : "") + (searchOpen && searchAnswer ? " has-search" : "") + (selectedText ? " has-selection" : "") + (translationPreviewOpen ? " has-follow" : "")}
           onDragEnter={(event) => { event.preventDefault(); setDraggingFile(true); }}
           onDragOver={(event) => event.preventDefault()}
           onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDraggingFile(false); }}
@@ -569,12 +594,13 @@ export default function Home() {
               readerRef={pdfReaderRef}
               onPageCount={updatePdfPageCount}
               onPageChange={setActivePage}
+              followTranslationEnabled={followTranslationEnabled}
               onTarget={focusTranslationTarget}
-              onTargetClick={pinTranslationTarget}
+              onTargetClick={openTranslationTarget}
               onReaderError={setError}
               onPageParagraphs={collectPageParagraphs}
               onPageTables={collectPageTables}
-              onSelectionText={(text) => { setSelectedText(text); setSelectionResult(null); }}
+              onSelectionText={(text) => { setSelectedText(text); setSelectionResult(null); void translateSelection(text); }}
             />
           ) : (
             <button className="reader-welcome" onClick={() => inputRef.current?.click()}>
@@ -612,9 +638,26 @@ export default function Home() {
           )}
 
           {searchOpen && searchAnswer && (
-            <aside ref={resultsRef} className="search-results-panel" aria-live="polite" onKeyDown={handleResultKeys}>
+            <aside
+              ref={resultsRef}
+              className="search-results-panel"
+              aria-live="polite"
+              aria-label="中文搜索结果面板"
+              onKeyDown={handleResultKeys}
+              style={selectedText ? { top: 16, bottom: "52%", maxHeight: "none" } : undefined}
+              onMouseUp={() => {
+                const selection = window.getSelection();
+                if (!selection?.anchorNode || !selection.focusNode) return;
+                if (!resultsRef.current?.contains(selection.anchorNode) || !resultsRef.current.contains(selection.focusNode)) return;
+                const text = selection.toString().replace(/\s+/g, " ").trim();
+                if (text.length < 2 || text.length > 2000) return;
+                setSelectedText(text);
+                setSelectionResult(null);
+                void translateSelection(text);
+              }}
+            >
               <div className="results-heading">
-                <div><small>中文搜索结果</small><strong>{query}</strong></div>
+                <div><small>中文搜索结果 · 仅搜索</small><strong>{query}</strong></div>
                 <button onClick={() => setSearchOpen(false)} aria-label="关闭搜索结果">×</button>
               </div>
               <p className="results-summary">{searchAnswer.answer_zh}</p>
@@ -637,10 +680,10 @@ export default function Home() {
           )}
 
           {translationPreviewOpen && (
-            <aside className="translation-preview-panel" aria-live="polite" aria-label="上下文翻译面板">
+            <aside className="translation-preview-panel" aria-live="polite" aria-label="跟随译读翻译面板">
               <div className="translation-panel-heading">
                 <div>
-                  <span>跟随译读</span>
+                  <span>跟随译读翻译</span>
                   <small>
                     {translationTarget ? `第 ${translationTarget.page} 页 · ` : ""}
                     {translationProvider === "deepl" ? "在线模型（DeepL）" : translationProvider === "online" ? "在线模型（智谱）" : modelReady ? "本机离线模型" : "未安装离线模型"}
@@ -667,7 +710,7 @@ export default function Home() {
                   <button className={translationView === "bilingual" ? "selected" : ""} onClick={() => setTranslationView("bilingual")}>中英对照</button>
                   <button className={translationView === "source" ? "selected" : ""} onClick={() => setTranslationView("source")}>原文</button>
                 </div>
-                {translationTarget && <button className="pin-translation" onClick={() => setTranslationPinned((pinned) => !pinned)}>{translationPinned ? "取消固定" : "固定段落"}</button>}
+                {translationTarget && <button className="pin-translation" onClick={toggleTranslationPinned}>{translationPinned ? "取消固定" : "固定段落"}</button>}
               </div>
 
               {translationProvider !== "offline" && (
@@ -732,13 +775,13 @@ export default function Home() {
                       )}
 
                       {translationState.status === "idle" && !translationBusy && (
-                        <p className="translation-empty">把鼠标移到英文段落上，或按 Tab 聚焦段落。译文会对应当前原文显示。</p>
+                        <p className="translation-empty">点击英文段落后，这里会显示对应的中文译文。</p>
                       )}
                     </>
                   )}
                 </div>
               ) : (
-                <p className="translation-empty">把鼠标移到英文段落上，或按 Tab 聚焦到段落。译文会对应当前原文显示。</p>
+                <p className="translation-empty">点击英文段落后，这里会显示对应的中文译文。</p>
               )}
               <small className="translation-boundary">
                 PDF 与文字只在本机处理 · 翻译不联网 · 寄存器名/地址/数值先做占位保护
@@ -756,7 +799,11 @@ export default function Home() {
           )}
 
           {selectedText && (
-            <aside className="selection-panel" aria-label="选中片段翻译">
+            <aside
+              className="selection-panel"
+              aria-label="选中片段翻译"
+              style={searchOpen && searchAnswer ? { top: "52%", bottom: 58, maxHeight: "none", overflow: "auto" } : undefined}
+            >
               <div className="selection-heading">
                 <span>选中片段 · {selectedText.length} 字</span>
                 <button onClick={() => { setSelectedText(""); setSelectionResult(null); }} aria-label="关闭选中翻译">×</button>
