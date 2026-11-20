@@ -1,0 +1,344 @@
+{
+  "measuredAt": "2026-11-20T10:52:28.782Z",
+  "base": "http://127.0.0.1:3010",
+  "mode": "10 serial HTTP requests, one paragraph per request",
+  "samples": [
+    {
+      "id": 1,
+      "page": 58,
+      "source": "Note: For further information on the Flash memory interface registers, refer to the:“STM32F10xxx XL-density Flash programming manual” (PM0068) for XL-density devices, “STM32F10xxx Flash programming manual” (PM0075) for other devices."
+    },
+    {
+      "id": 2,
+      "page": 67,
+      "source": "The device requires a 2.0-to-3.6 V operating voltage supply (VDD). An embedded regulator is used to supply the internal 1.8 V digital power. The real-time clock (RTC) and backup registers can be powered from the VBAT voltage when the main VDD supply is powered off."
+    },
+    {
+      "id": 3,
+      "page": 84,
+      "source": "Note: Setting the TPAL and TPE bits at the same time is always safe, however resetting both at the same time can generate a spurious Tamper event. For this reason it is recommended to change the TPAL bit only when the TPE bit is reset."
+    },
+    {
+      "id": 4,
+      "page": 95,
+      "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 25 MHz. You select this mode by setting the HSEBYP and HSEON bits in the Clock control register (RCC_CR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC_IN pin while the OSC_OUT pin should be left hi-Z. See Figure 9."
+    },
+    {
+      "id": 5,
+      "page": 96,
+      "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 1 MHz. You select this mode by setting the LSEBYP and LSEON bits in the Backup domain control register (RCC_BDCR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC32_IN pin while the OSC32_OUT pin should be left Hi-Z. See Figure 9."
+    }
+  ],
+  "results": [
+    {
+      "id": "timing-1-online",
+      "sample": 1,
+      "provider": "online",
+      "status": 200,
+      "wallMs": 6481,
+      "engineMs": 6150,
+      "ok": true,
+      "engine": "智谱 GLM glm-5.3-flashx（在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "Note: For further information on the Flash memory interface registers, refer to the:“STM32F10xxx XL-density Flash programming manual” (PM0068) for XL-density devices, “STM32F10xxx Flash programming manual” (PM0075) for other devices.",
+          "translation": "注：有关Flash存储器接口寄存器的更多信息，请参阅：适用于XL密度器件的《STM32F10xxx XL密度Flash编程手册》（PM0068），以及适用于其他器件的《STM32F10xxx Flash编程手册》（PM0075）。",
+          "ms": 6149,
+          "protectedCount": 2,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-1-online",
+        "provider": "online",
+        "status": 200,
+        "totalMs": 6157,
+        "glmMs": 6151,
+        "deeplMs": 0
+      }
+    },
+    {
+      "id": "timing-1-deepl",
+      "sample": 1,
+      "provider": "deepl",
+      "status": 200,
+      "wallMs": 1648,
+      "engineMs": 1617,
+      "ok": true,
+      "engine": "DeepL（Free（每月 50 万字符），在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "Note: For further information on the Flash memory interface registers, refer to the:“STM32F10xxx XL-density Flash programming manual” (PM0068) for XL-density devices, “STM32F10xxx Flash programming manual” (PM0075) for other devices.",
+          "translation": "注：有关闪存接口寄存器的更多信息，请参阅：STM32F10xxx XL密度闪存编程手册”（PM0068）适用于XL密度器件，“STM32F10xxx闪存编程手册”（PM0075）适用于其他器件。",
+          "ms": 1617,
+          "protectedCount": 2,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-1-deepl",
+        "provider": "deepl",
+        "status": 200,
+        "totalMs": 1622,
+        "glmMs": 0,
+        "deeplMs": 1619
+      }
+    },
+    {
+      "id": "timing-2-online",
+      "sample": 2,
+      "provider": "online",
+      "status": 200,
+      "wallMs": 5699,
+      "engineMs": 5670,
+      "ok": true,
+      "engine": "智谱 GLM glm-5.3-flashx（在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "The device requires a 2.0-to-3.6 V operating voltage supply (VDD). An embedded regulator is used to supply the internal 1.8 V digital power. The real-time clock (RTC) and backup registers can be powered from the VBAT voltage when the main VDD supply is powered off.",
+          "translation": "器件需要 2.0 至 3.6 V 的工作电压供电（VDD）。内嵌稳压器用于为内部 1.8 V 数字电源供电。当主 VDD 电源断开时，实时时钟（RTC）和备份寄存器可由 VBAT 电压供电。",
+          "ms": 5670,
+          "protectedCount": 6,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-2-online",
+        "provider": "online",
+        "status": 200,
+        "totalMs": 5674,
+        "glmMs": 5672,
+        "deeplMs": 0
+      }
+    },
+    {
+      "id": "timing-2-deepl",
+      "sample": 2,
+      "provider": "deepl",
+      "status": 200,
+      "wallMs": 1725,
+      "engineMs": 1704,
+      "ok": true,
+      "engine": "DeepL（Free（每月 50 万字符），在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "The device requires a 2.0-to-3.6 V operating voltage supply (VDD). An embedded regulator is used to supply the internal 1.8 V digital power. The real-time clock (RTC) and backup registers can be powered from the VBAT voltage when the main VDD supply is powered off.",
+          "translation": "该设备需要2.0至3.6 V的工作电压电源（VDD）。 采用嵌入式稳压器为内部1.8 V数字电源供电。当主VDD电源断开时，实时时钟（RTC）和备份寄存器可由VBAT电压供电。",
+          "ms": 1704,
+          "protectedCount": 6,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-2-deepl",
+        "provider": "deepl",
+        "status": 200,
+        "totalMs": 1706,
+        "glmMs": 0,
+        "deeplMs": 1705
+      }
+    },
+    {
+      "id": "timing-3-online",
+      "sample": 3,
+      "provider": "online",
+      "status": 200,
+      "wallMs": 3720,
+      "engineMs": 3692,
+      "ok": true,
+      "engine": "智谱 GLM glm-5.3-flashx（在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "Note: Setting the TPAL and TPE bits at the same time is always safe, however resetting both at the same time can generate a spurious Tamper event. For this reason it is recommended to change the TPAL bit only when the TPE bit is reset.",
+          "translation": "注意：同时置位 TPAL 位和 TPE 位始终是安全的，但同时将两者复位可能会产生一个虚假的 Tamper 事件。因此，建议仅当 TPE 位处于复位状态时才更改 TPAL 位。",
+          "ms": 3692,
+          "protectedCount": 4,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-3-online",
+        "provider": "online",
+        "status": 200,
+        "totalMs": 3695,
+        "glmMs": 3693,
+        "deeplMs": 0
+      }
+    },
+    {
+      "id": "timing-3-deepl",
+      "sample": 3,
+      "provider": "deepl",
+      "status": 200,
+      "wallMs": 537,
+      "engineMs": 516,
+      "ok": true,
+      "engine": "DeepL（Free（每月 50 万字符），在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "Note: Setting the TPAL and TPE bits at the same time is always safe, however resetting both at the same time can generate a spurious Tamper event. For this reason it is recommended to change the TPAL bit only when the TPE bit is reset.",
+          "translation": "注意：同时设置 TPAL 和 TPE 位始终是安全的，但同时将两者复位可能会触发虚假的篡改事件。 因此，建议仅在 TPE 位被复位时才更改 TPAL 位。",
+          "ms": 516,
+          "protectedCount": 4,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-3-deepl",
+        "provider": "deepl",
+        "status": 200,
+        "totalMs": 518,
+        "glmMs": 0,
+        "deeplMs": 517
+      }
+    },
+    {
+      "id": "timing-4-online",
+      "sample": 4,
+      "provider": "online",
+      "status": 200,
+      "wallMs": 4126,
+      "engineMs": 4101,
+      "ok": true,
+      "engine": "智谱 GLM glm-5.3-flashx（在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 25 MHz. You select this mode by setting the HSEBYP and HSEON bits in the Clock control register (RCC_CR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC_IN pin while the OSC_OUT pin should be left hi-Z. See Figure 9.",
+          "translation": "在此模式下，必须提供外部时钟源，其频率最高可达 25 MHz。通过置位时钟控制寄存器（RCC_CR）中的 HSEBYP 和 HSEON 位来选择此模式。占空比约为 50% 的外部时钟信号（方波、正弦波或三角波）必须驱动 OSC_IN 引脚，同时 OSC_OUT 引脚应保持 hi-Z（高阻）状态。参见图 9。",
+          "ms": 4101,
+          "protectedCount": 5,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-4-online",
+        "provider": "online",
+        "status": 200,
+        "totalMs": 4103,
+        "glmMs": 4101,
+        "deeplMs": 0
+      }
+    },
+    {
+      "id": "timing-4-deepl",
+      "sample": 4,
+      "provider": "deepl",
+      "status": 200,
+      "wallMs": 1587,
+      "engineMs": 1565,
+      "ok": true,
+      "engine": "DeepL（Free（每月 50 万字符），在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 25 MHz. You select this mode by setting the HSEBYP and HSEON bits in the Clock control register (RCC_CR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC_IN pin while the OSC_OUT pin should be left hi-Z. See Figure 9.",
+          "translation": "在此模式下，必须提供外部时钟源。其频率最高可达 25 MHz。通过设置时钟控制寄存器（RCC_CR）中的 HSEBYP 和 HSEON 位，即可选择此模式。 占空比约为 50% 的外部时钟信号（方波、正弦波或三角波）必须驱动 OSC_IN 引脚，而 OSC_OUT 引脚应保持高阻态。参见图 9。",
+          "ms": 1565,
+          "protectedCount": 5,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-4-deepl",
+        "provider": "deepl",
+        "status": 200,
+        "totalMs": 1567,
+        "glmMs": 0,
+        "deeplMs": 1566
+      }
+    },
+    {
+      "id": "timing-5-online",
+      "sample": 5,
+      "provider": "online",
+      "status": 200,
+      "wallMs": 5261,
+      "engineMs": 5232,
+      "ok": true,
+      "engine": "智谱 GLM glm-5.3-flashx（在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 1 MHz. You select this mode by setting the LSEBYP and LSEON bits in the Backup domain control register (RCC_BDCR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC32_IN pin while the OSC32_OUT pin should be left Hi-Z. See Figure 9.",
+          "translation": "在此模式下，必须提供外部时钟源，其频率最高可达 1 MHz。通过置位 Backup domain control register（RCC_BDCR）中的 LSEBYP 和 LSEON 位来选择此模式。占空比约为 50% 的外部时钟信号（方波、正弦波或三角波）必须驱动 OSC32_IN 引脚，同时 OSC32_OUT 引脚应保持 Hi-Z 状态。参见图 9。",
+          "ms": 5232,
+          "protectedCount": 5,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-5-online",
+        "provider": "online",
+        "status": 200,
+        "totalMs": 5234,
+        "glmMs": 5232,
+        "deeplMs": 0
+      }
+    },
+    {
+      "id": "timing-5-deepl",
+      "sample": 5,
+      "provider": "deepl",
+      "status": 200,
+      "wallMs": 1568,
+      "engineMs": 1544,
+      "ok": true,
+      "engine": "DeepL（Free（每月 50 万字符），在线，已发送当前段落）",
+      "items": [
+        {
+          "source": "In this mode, an external clock source must be provided. It can have a frequency of up to 1 MHz. You select this mode by setting the LSEBYP and LSEON bits in the Backup domain control register (RCC_BDCR). The external clock signal (square, sinus or triangle) with ~50% duty cycle has to drive the OSC32_IN pin while the OSC32_OUT pin should be left Hi-Z. See Figure 9.",
+          "translation": "在此模式下，必须提供外部时钟源。其频率最高可达 1 MHz。您可通过设置备份域控制寄存器（RCC_BDCR）中的 LSEBYP 和 LSEON 位来选择此模式。 占空比约为 50% 的外部时钟信号（方波、正弦波或三角波）必须驱动 OSC32_IN 引脚，而 OSC32_OUT 引脚应保持高阻态。参见图 9。",
+          "ms": 1544,
+          "protectedCount": 5,
+          "unresolved": [],
+          "protectionSkipped": false,
+          "degraded": false,
+          "qualityFailed": false
+        }
+      ],
+      "error": null,
+      "serverTiming": {
+        "id": "timing-5-deepl",
+        "provider": "deepl",
+        "status": 200,
+        "totalMs": 1547,
+        "glmMs": 0,
+        "deeplMs": 1545
+      }
+    }
+  ]
+}

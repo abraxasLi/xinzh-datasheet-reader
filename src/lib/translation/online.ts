@@ -91,12 +91,14 @@ export async function translateOnline(texts: string[]) {
   if (!texts.length) return { items, totalMs: 0, config: onlineConfig() };
 
   if (texts.length === 1) {
+    console.info("[translation-mode]", JSON.stringify({ provider: "glm", mode: "single", paragraphs: 1 }));
     const begin = Date.now();
     items.push({ text: await callOnce(texts[0], 0), ms: Date.now() - begin });
     return { items, totalMs: Date.now() - startedAt, config: onlineConfig() };
   }
 
   const begin = Date.now();
+  console.info("[translation-mode]", JSON.stringify({ provider: "glm", mode: "batch-single-request", paragraphs: texts.length }));
   try {
     const joined = texts.map((text, index) => `【${index + 1}】${text}`).join("\n");
     const output = await callModel(BATCH_SYSTEM, joined, 0);
@@ -114,6 +116,7 @@ export async function translateOnline(texts: string[]) {
     console.warn(`[online] 批量失败，回退逐段：${error instanceof Error ? error.message : error}`);
   }
 
+  console.info("[translation-mode]", JSON.stringify({ provider: "glm", mode: "serial-fallback", paragraphs: texts.length }));
   for (const text of texts) {
     const itemStart = Date.now();
     items.push({ text: await callOnce(text, 0), ms: Date.now() - itemStart });
