@@ -103,9 +103,9 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .pdf-outline-panel>p{margin:14px;color:#89948b;font:10px/1.7 'Noto Sans SC',sans-serif}
 .pdf-viewer-container .textLayer .pdf-translation-target{cursor:text}
 .pdf-viewer-container .textLayer .pdf-translation-target:focus-visible{outline:2px solid #4c8c61;outline-offset:1px;border-radius:2px}
-.pdf-viewer-container .textLayer .pdf-translation-target.translation-active{background:rgba(255,213,82,.44);border-radius:2px}
+.pdf-viewer-container .textLayer .pdf-translation-target.translation-active{background:transparent;border-radius:2px}
 .pdf-viewer-container .textLayer .pdf-search-highlight{background:rgba(239,160,57,.62)!important;outline:2px solid #c56d16;border-radius:2px;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
-.pdf-viewer-container .translation-paragraph-frame{position:absolute;z-index:3;pointer-events:none;border:2px solid #d29323;border-radius:5px;background:rgba(255,243,199,.08);box-shadow:0 0 0 2px rgba(255,255,255,.72);}
+.pdf-viewer-container .translation-paragraph-frame{position:absolute;z-index:3;pointer-events:none;border:0;border-left:2px solid #91aaba;border-radius:0;background:rgba(115,155,180,.045);}
 .search-results-panel{z-index:7;top:14px;left:14px;right:auto;width:min(360px,calc(100% - 28px));max-height:calc(100% - 28px);border-color:#cfe1d2}
 .search-results-panel .results-heading{background:#f1f8f2;border-bottom-color:#dcebdd}
 .translation-preview-panel{z-index:6;top:14px;right:14px;bottom:58px;left:auto;width:clamp(330px,40%,560px);max-height:none;display:flex;flex-direction:column;padding:0;border-color:#d4ddea;background:#fcfdff}
@@ -311,3 +311,6 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .reader-stage.has-follow .selection-panel{left:8px;right:auto;width:calc(50% - 20px);min-width:0}
 .reader-stage.has-search .translation-preview-panel,
 .reader-stage.has-selection .translation-preview-panel{left:auto;right:8px;top:14px;bottom:58px;width:calc(50% - 20px);min-width:0;min-height:0;max-height:none}
+
+.pdf-viewer-container.translation-selecting .translation-paragraph-frame{display:none}
+.pdf-viewer-container.translation-selecting .textLayer .translation-active{background:transparent}
