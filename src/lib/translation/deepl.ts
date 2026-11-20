@@ -76,6 +76,7 @@ async function request(texts: string[], attempt: number): Promise<string[]> {
 
 /** DeepL 原生支持多段数组，一次请求即可。 */
 export async function translateWithDeepL(texts: string[]) {
+  console.info("[translation-mode]", JSON.stringify({ provider: "deepl", mode: texts.length === 1 ? "single" : "batch-single-request", paragraphs: texts.length }));
   const startedAt = Date.now();
   const outputs = await request(texts, 0);
   const elapsed = Date.now() - startedAt;
