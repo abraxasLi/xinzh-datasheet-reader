@@ -23,6 +23,7 @@ type Props = {
   readerRef: RefObject<PdfReaderHandle | null>;
   onPageCount: (count: number) => void;
   onPageChange: (page: number) => void;
+  followTranslationEnabled: boolean;
   onTarget: (target: TranslationTarget) => void;
   onTargetClick: (target: TranslationTarget) => void;
   onReaderError: (message: string) => void;
@@ -118,7 +119,7 @@ function groupTextLayer(container: HTMLDivElement, page: number): TranslationTar
   }));
 }
 
-export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onPageChange, onTarget, onTargetClick, onReaderError, onPageParagraphs, onPageTables, onSelectionText }: Props) {
+export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError, onPageParagraphs, onPageTables, onSelectionText }: Props) {
   const [outline, setOutline] = useState<DisplayOutlineItem[]>([]);
   const [outlineOpen, setOutlineOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -128,7 +129,7 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
   const activeTargetRef = useRef<TranslationTarget | null>(null);
   const pendingSearchRef = useRef<{ page: number; term: string } | null>(null);
   const applySearchHighlightRef = useRef<() => void>(() => {});
-  const callbackRef = useRef({ onPageCount, onPageChange, onTarget, onTargetClick, onReaderError });
+  const callbackRef = useRef({ onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError });
   const onPageParagraphsRef = useRef(onPageParagraphs);
   const onPageTablesRef = useRef(onPageTables);
   const lastTableRef = useRef<{ page: number; table: ParsedTable } | null>(null);
@@ -143,8 +144,8 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
   useEffect(() => { pageNumberRef.current = pageNumber; }, [pageNumber]);
 
   useEffect(() => {
-    callbackRef.current = { onPageCount, onPageChange, onTarget, onTargetClick, onReaderError };
-  }, [onPageCount, onPageChange, onTarget, onTargetClick, onReaderError]);
+    callbackRef.current = { onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError };
+  }, [onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError]);
 
   useImperativeHandle(readerRef, () => ({
     goToPage: (page, highlightTerm) => {
@@ -303,21 +304,18 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       const target = lookupTarget(event);
       if (target) {
         drawTargetFrame(target);
-        callbackRef.current.onTarget(target);
+        if (callbackRef.current.followTranslationEnabled) callbackRef.current.onTarget(target);
       }
     };
     const handleClick = (event: MouseEvent) => {
       const target = lookupTarget(event);
-      if (target) {
+      if (target && callbackRef.current.followTranslationEnabled && window.getSelection()?.type !== "Range") {
         callbackRef.current.onTargetClick(target);
       }
     };
     const handleFocus = (event: FocusEvent) => {
       const target = lookupTarget(event);
-      if (target) {
-        drawTargetFrame(target);
-        callbackRef.current.onTarget(target);
-      }
+      if (target) drawTargetFrame(target);
     };
     const handleMouseUp = () => {
       const selection = window.getSelection();
