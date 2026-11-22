@@ -3,7 +3,7 @@ import { z } from "zod";
 import { documents } from "@/lib/documents";
 import { embedTexts, embeddingConfig } from "@/lib/search/embed";
 import { ensureIndex, hybridSearch, indexStatus } from "@/lib/search/index";
-import { writeEvidenceCards } from "@/lib/search/evidence";
+import { rewriteQuery, writeEvidenceCards } from "@/lib/search/evidence";
 import { onlineConfig } from "@/lib/translation/online";
 
 export const runtime = "nodejs";
@@ -48,9 +48,13 @@ export async function POST(request: Request) {
     if (status.state !== "ready") {
       return NextResponse.json({ error: status.state === "error" ? status.error : "语义索引还没准备好。", index: status }, { status: 409 });
     }
-    const [queryEmbedding] = await embedTexts([question]);
+    const english = await rewriteQuery(question);
+    const rewrittenAt = Date.now();
+    const searchText = english ? `${question}
+${english}` : question;
+    const [queryEmbedding] = await embedTexts([searchText]);
     const embeddedAt = Date.now();
-    const { hits, keywordHits } = await hybridSearch(input.documentId, question, queryEmbedding, 5);
+    const { hits, keywordHits } = await hybridSearch(input.documentId, searchText, queryEmbedding, 5);
     const searchedAt = Date.now();
     if (!hits.length) return NextResponse.json({ mode: "semantic", cards: [], approximate: true, ms: searchedAt - startedAt });
 
@@ -58,8 +62,8 @@ export async function POST(request: Request) {
     const approximate = keywordHits === 0 && !best.via.includes("keyword") && (best.distance ?? 1) > APPROXIMATE_DISTANCE;
     const used = approximate ? hits.slice(0, 1) : hits;
     const { cards, ms: glmMs, model } = await writeEvidenceCards(question, used.map((hit) => hit.chunk));
-    console.info("[semantic-search]", JSON.stringify({ chunks: used.length, embedMs: embeddedAt - startedAt, searchMs: searchedAt - embeddedAt, glmMs, model, approximate }));
-    return NextResponse.json({ mode: "semantic", cards, approximate, ms: Date.now() - startedAt, timing: { embedMs: embeddedAt - startedAt, searchMs: searchedAt - embeddedAt, glmMs } });
+    console.info("[semantic-search]", JSON.stringify({ chunks: used.length, rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs, model, approximate }));
+    return NextResponse.json({ mode: "semantic", cards, approximate, ms: Date.now() - startedAt, timing: { rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs } });
   } catch (error) {
     if (error instanceof z.ZodError) return NextResponse.json({ error: "请求参数不正确。" }, { status: 400 });
     console.error("semantic search failed:", error instanceof Error ? error.message : "unknown");

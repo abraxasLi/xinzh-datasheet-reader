@@ -3,7 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const KEY_FILE = path.join(process.cwd(), ".siliconflow-key");
+// Windows 资源管理器常把 .siliconflow-key 存成 .siliconflow-key.txt，两种名字都认。
+const KEY_FILES = [".siliconflow-key", ".siliconflow-key.txt"].map((name) => path.join(process.cwd(), name));
 const BASE = process.env.SILICONFLOW_BASE || "https://api.siliconflow.cn/v1";
 const MODEL = process.env.XINZH_EMBED_MODEL || "BAAI/bge-m3";
 const BATCH = 32;
@@ -12,8 +13,9 @@ function readKey(): string {
   const fromEnv = (process.env.SILICONFLOW_API_KEY || "").trim();
   if (fromEnv) return fromEnv;
   try {
-    if (!fs.existsSync(KEY_FILE)) return "";
-    const match = fs.readFileSync(KEY_FILE, "utf8").trim().match(/^(?:SILICONFLOW_API_KEY\s*=\s*)?(.+)$/m);
+    const file = KEY_FILES.find((candidate) => fs.existsSync(candidate));
+    if (!file) return "";
+    const match = fs.readFileSync(file, "utf8").trim().match(/^(?:SILICONFLOW_API_KEY\s*=\s*)?(.+)$/m);
     return (match?.[1] || "").trim().replace(/^["']|["']$/g, "");
   } catch {
     return "";
