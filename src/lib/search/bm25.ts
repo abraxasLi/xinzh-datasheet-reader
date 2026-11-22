@@ -1,11 +1,11 @@
-// 关键词路：BM25。认 AFIO_MAPR、0x40010004 这类精确词。
+// 关键词路：BM25。认 XXX_CR 这类带下划线的寄存器名和 0x 开头的地址等精确词。
 import type { Chunk } from "./chunk";
 
 export function tokenize(text: string): string[] {
   const out: string[] = [];
   for (const raw of text.toLowerCase().match(/0x[0-9a-f]+|[a-z][a-z0-9_]*|\d+/g) || []) {
     out.push(raw);
-    // AFIO_MAPR 同时可被 afio / mapr 命中，但完整标识符权重由 IDF 自然拉高。
+    // XXX_CR 同时可被 xxx / cr 命中，但完整标识符权重由 IDF 自然拉高。
     if (raw.includes("_")) for (const part of raw.split("_")) if (part.length > 1) out.push(part);
   }
   return out;
