@@ -6,7 +6,7 @@ import { onlineConfig } from "@/lib/translation/online";
 import type { Chunk } from "./chunk";
 
 export type EvidenceCard = {
-  title: string;       // "AFIO_MAPR · 复用重映射寄存器"
+  title: string;       // "<REG_NAME> · <中文名>"
   what: string;        // 1 句中文解释
   quote_zh: string;    // 原文那句的中文翻译，命中词用 **加粗**
   keyword: string;     // 英文原样关键词
@@ -33,7 +33,7 @@ const SYSTEM = [
   "你是嵌入式芯片手册的中文检索助手，面向不懂英文的初学者。",
   "用户给出一个中文问题和若干编号的手册英文片段。对每个片段输出一张证据卡，严格输出 JSON 数组，不要任何其它文字、不要 Markdown。",
   "每个元素字段：",
-  '{"i":片段编号,"title":"寄存器名或主题英文名 · 中文名（如 AFIO_MAPR · 复用重映射寄存器）","what":"一句中文解释这是什么，不超过 40 字","sentence_en":"从该片段中逐字复制最能回答问题的一句英文原文，不得改写","quote_zh":"sentence_en 的中文翻译，把与问题最相关的中文词用 **双星号** 包住","keyword":"该句里最关键的英文词或标识符，原样不翻译"}',
+  '{"i":片段编号,"title":"寄存器名或主题英文名 · 中文名（如 XXX_CR · 控制寄存器；没有寄存器名时用小节主题）","what":"一句中文解释这是什么，不超过 40 字","sentence_en":"从该片段中逐字复制最能回答问题的一句英文原文，不得改写","quote_zh":"sentence_en 的中文翻译，把与问题最相关的中文词用 **双星号** 包住","keyword":"该句里最关键的英文词或标识符，原样不翻译"}',
   "规则：寄存器名、位名、地址、数值、单位原样保留；否定和条件关系不能丢；片段里没有的内容不要编造；片段与问题无关时 what 写明“与问题关系不大”。",
 ].join("\n");
 
@@ -82,18 +82,21 @@ async function chat(system: string, user: string, maxTokens: number, timeoutMs: 
 }
 
 const REWRITE_SYSTEM = [
-  "你把中文问题改写成英文检索词，用来在英文 MCU 参考手册 / 数据手册里搜索。",
-  "只输出一行：8–16 个英文关键词，用空格分隔；包含手册里可能出现的术语、缩写和最可能的寄存器名（如 PERIPH_REG 形式）。",
-  "术语对照（只有问题确实涉及才用，无关的一律不要写进去）：复用/重映射=alternate function / remap（AFIO）；看门狗=watchdog（IWDG、WWDG）；外部时钟=external clock（HSE）；波特率=baud rate；预分频=prescaler；中断=interrupt（NVIC、EXTI）。",
-  "问“怎么开 / 启用 / 启动 / 配置”这类操作时，加入 enable start write key bit sequence 这类操作词；问“最高 / 最大 / 范围”时，加入 maximum frequency MHz up to。",
-  "问题很短或含糊时，优先按嵌入式外设常识理解，不要往别的方向猜。",
+  "你把中文问题改写成英文检索词，用来在英文 MCU 手册里搜索。",
+  "只输出一行，英文关键词用空格分隔；数量跟问题信息量成正比：问题很短就只给 3–6 个词，长问题最多 12 个。",
+  "忠实原则：只翻译问题里出现的概念，加上它们在手册里常见的同义词或标准写法。",
+  "用户会附上“本手册的章节/外设名词表”。如果问题对应词表里的某一项，必须用词表里的英文全称和缩写原样写出来；词表没有对应项时，只翻译问题本身。",
+  "禁止添加既不在问题里、也不在词表里的外设名、寄存器名、缩写或数值；不确定就少写，宁缺毋滥，不要为了凑数去猜。",
+  "问题里本来就有的英文标识符、缩写、数字原样保留。",
+  "问“怎么开 / 启用 / 启动 / 配置”这类操作时，可以加 enable / start / configure；问“最高 / 最大 / 范围”时，可以加 maximum / limit / range；问题没有这类意思就不要加。",
   "不要解释，不要引号，不要换行。",
 ].join("\n");
 
 /** 中文问题 → 英文检索词，让 BM25 能认英文术语，向量也有英文锚点。失败时返回空串（退回原问题）。 */
-export async function rewriteQuery(question: string): Promise<string> {
+export async function rewriteQuery(question: string, outline: string[] = []): Promise<string> {
   try {
-    const text = await chat(REWRITE_SYSTEM, question, 500, 8000, 0);
+    const user = outline.length ? `本手册的章节/外设名词表：${outline.join("；")}\n\n问题：${question}` : `问题：${question}`;
+    const text = await chat(REWRITE_SYSTEM, user, 500, 8000, 0);
     return text.split("\n")[0].replace(/["`]/g, "").trim().slice(0, 300);
   } catch {
     return "";

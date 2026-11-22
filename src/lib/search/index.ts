@@ -6,9 +6,10 @@ import { buildBm25, type Bm25Index } from "./bm25";
 import { chunkDocument, type Chunk } from "./chunk";
 import { collectionNameFor, dropOtherManuals, getChroma } from "./chroma";
 import { embedTexts, embeddingConfig } from "./embed";
+import { buildOutline } from "./outline";
 
 export type IndexStatus = { state: "idle" | "indexing" | "ready" | "error"; done: number; total: number; error: string; reused: boolean };
-type DocIndex = IndexStatus & { chunks: Chunk[]; bm25: Bm25Index | null; collection: string; job: Promise<void> | null };
+type DocIndex = IndexStatus & { outline: string[]; chunks: Chunk[]; bm25: Bm25Index | null; collection: string; job: Promise<void> | null };
 
 const globalIndex = globalThis as typeof globalThis & { __xinzhIndex?: Map<string, DocIndex> };
 const indexes = globalIndex.__xinzhIndex ??= new Map<string, DocIndex>();
@@ -24,6 +25,11 @@ function fingerprint(name: string, pages: string[]) {
   return hash.digest("hex").slice(0, 20);
 }
 
+/** 这本手册自己的章节/外设名词表，给查询改写做领域对照。 */
+export function documentOutline(documentId: string): string[] {
+  return indexes.get(documentId)?.outline ?? [];
+}
+
 export function indexStatus(documentId: string): IndexStatus {
   const item = indexes.get(documentId);
   return item ? { state: item.state, done: item.done, total: item.total, error: item.error, reused: item.reused } : { state: "idle", done: 0, total: 0, error: "", reused: false };
@@ -34,7 +40,7 @@ export function ensureIndex(documentId: string, name: string, pages: string[]): 
   const existing = indexes.get(documentId);
   if (existing && (existing.state === "indexing" || existing.state === "ready")) return indexStatus(documentId);
   const chunks = chunkDocument(pages, name);
-  const item: DocIndex = { state: "indexing", done: 0, total: chunks.length, error: "", reused: false, chunks, bm25: buildBm25(chunks), collection: collectionNameFor(fingerprint(name, pages)), job: null };
+  const item: DocIndex = { outline: buildOutline(pages), state: "indexing", done: 0, total: chunks.length, error: "", reused: false, chunks, bm25: buildBm25(chunks), collection: collectionNameFor(fingerprint(name, pages)), job: null };
   indexes.set(documentId, item);
   item.job = (async () => {
     try {
@@ -87,30 +93,40 @@ function queryTerms(question: string) {
 
 const RRF_K = 60;
 
-export async function hybridSearch(documentId: string, question: string, queryEmbedding: number[], limit = 5, userQuestion = question): Promise<{ hits: Hit[]; keywordHits: number; semanticHits: number }> {
+export async function hybridSearch(documentId: string, question: string, queryEmbeddings: number[][], limit = 5, userQuestion = question): Promise<{ hits: Hit[]; keywordHits: number; semanticHits: number }> {
   const item = indexes.get(documentId);
   if (!item || item.state !== "ready" || !item.bm25) throw new Error("索引还没准备好。");
   const keyword = item.bm25.search(queryTerms(question), 20);
   const client = await getChroma();
   const collection = await client.getCollection({ name: item.collection });
-  const result = await collection.query({ queryEmbeddings: [queryEmbedding], nResults: 20, include: ["distances"] });
-  const semanticIds = (result.ids[0] || []) as string[];
-  const distances = (result.distances?.[0] || []) as (number | null)[];
+  // 每个查询向量各查一路（目前只传一个："原中文问题 + 英文改写"）。
+  // 试过再加一路"只有中文问题"的向量并加权兜底：BGE-M3 对很短的中文去搜英文手册跨语言很弱，
+  // 只会把无关段落抬高，已撤回。
+  const results = await Promise.all(queryEmbeddings.map((embedding) => collection.query({ queryEmbeddings: [embedding], nResults: 20, include: ["distances"] })));
+  const semanticLists = results.map((result) => ({
+    ids: (result.ids[0] || []) as string[],
+    distances: (result.distances?.[0] || []) as (number | null)[],
+  }));
+  const semanticIds = semanticLists.flatMap((list) => list.ids);
   const byId = new Map(item.chunks.map((chunk) => [chunk.id, chunk]));
 
   const fused = new Map<string, Hit>();
-  const add = (chunk: Chunk, rank: number, via: "keyword" | "semantic") => {
+  const add = (chunk: Chunk, rank: number, via: "keyword" | "semantic", weight = 1) => {
     const hit = fused.get(chunk.id) || { chunk, score: 0, via: [], distance: null };
-    hit.score += 1 / (RRF_K + rank);
+    hit.score += weight / (RRF_K + rank);
     if (!hit.via.includes(via)) hit.via.push(via);
     fused.set(chunk.id, hit);
   };
   keyword.forEach((entry, rank) => add(entry.chunk, rank, "keyword"));
-  semanticIds.forEach((id, rank) => {
-    const chunk = byId.get(id);
-    if (!chunk) return;
-    add(chunk, rank, "semantic");
-    fused.get(id)!.distance = distances[rank] ?? null;
+  semanticLists.forEach((list, listIndex) => {
+    list.ids.forEach((id, rank) => {
+      const chunk = byId.get(id);
+      if (!chunk) return;
+      add(chunk, rank, "semantic");
+      const hit = fused.get(id)!;
+      const distance = list.distances[rank] ?? null;
+      if (distance !== null && (hit.distance === null || distance < hit.distance)) hit.distance = distance;
+    });
   });
   // 用户写出了完整的寄存器名：寄存器定义段排在泛提及之前。
   // 只认用户自己写的名字；改写出来的"可能的寄存器名"只是猜测，不能拿来加权。
@@ -124,13 +140,13 @@ export async function hybridSearch(documentId: string, question: string, queryEm
     seen.add(key);
     return true;
   });
-  // 顺着引用补定义：前几段正文反复提到某个寄存器（如 "write 0xCCCC in the Key register (IWDG_KR)"），
+  // 顺着引用补定义：前几段正文反复提到某个寄存器（如 "write the key in the Key register (XXX_KR)"），
   // 而它的定义段只有标题、自己很难被搜到时，把定义段补进来。
   const definitions = new Map<string, Chunk>();
   for (const chunk of item.chunks) if (chunk.register && !definitions.has(chunk.register)) definitions.set(chunk.register, chunk);
   const mentions = new Map<string, number>();
   for (const hit of ranked.slice(0, 4)) {
-    for (const token of new Set(hit.chunk.text.match(/[A-Z][A-Z0-9]*(?:_[A-Za-z0-9]+)+/g) || [])) {
+    for (const token of new Set(hit.chunk.text.match(/\b[A-Z][A-Z0-9]*(?:_[A-Za-z0-9]+)+\b/g) || [])) {
       if (definitions.has(token) && hit.chunk.register !== token) mentions.set(token, (mentions.get(token) || 0) + 1);
     }
   }

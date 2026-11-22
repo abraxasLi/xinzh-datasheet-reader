@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { documents } from "@/lib/documents";
 import { embedTexts, embeddingConfig } from "@/lib/search/embed";
-import { ensureIndex, hybridSearch, indexStatus } from "@/lib/search/index";
+import { documentOutline, ensureIndex, hybridSearch, indexStatus } from "@/lib/search/index";
 import { rewriteQuery, writeEvidenceCards } from "@/lib/search/evidence";
 import { onlineConfig } from "@/lib/translation/online";
 
@@ -48,13 +48,13 @@ export async function POST(request: Request) {
     if (status.state !== "ready") {
       return NextResponse.json({ error: status.state === "error" ? status.error : "语义索引还没准备好。", index: status }, { status: 409 });
     }
-    const english = await rewriteQuery(question);
+    const english = await rewriteQuery(question, documentOutline(input.documentId));
     const rewrittenAt = Date.now();
     const searchText = english ? `${question}
 ${english}` : question;
-    const [queryEmbedding] = await embedTexts([searchText]);
+    const queryEmbeddings = await embedTexts([searchText]);
     const embeddedAt = Date.now();
-    const { hits, keywordHits } = await hybridSearch(input.documentId, searchText, queryEmbedding, 5, question);
+    const { hits, keywordHits } = await hybridSearch(input.documentId, searchText, queryEmbeddings, 5, question);
     const searchedAt = Date.now();
     if (!hits.length) return NextResponse.json({ mode: "semantic", cards: [], approximate: true, ms: searchedAt - startedAt });
 
