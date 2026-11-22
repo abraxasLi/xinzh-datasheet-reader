@@ -17,6 +17,15 @@ type SearchAnswer = {
   glossary?: { term: string; english: string; chinese: string }[];
 };
 
+type EvidenceCard = { title: string; what: string; quote_zh: string; keyword: string; sentence_en: string; page: number; section: string; register: string };
+type SemanticResult = { cards: EvidenceCard[]; approximate: boolean; ms: number };
+type SemanticIndex = { state: "idle" | "indexing" | "ready" | "error"; done: number; total: number; error: string; reused: boolean };
+const IDLE_INDEX: SemanticIndex = { state: "idle", done: 0, total: 0, error: "", reused: false };
+
+function boldMarks(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <b key={index}>{part.slice(2, -2)}</b> : part);
+}
+
 type ModelInfo = {
   installed: boolean;
   manifest?: {
@@ -79,6 +88,11 @@ export default function Home() {
   const [searching, setSearching] = useState(false);
   const [searchAnswer, setSearchAnswer] = useState<SearchAnswer | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // 语义搜索默认关闭：开启后问题和命中的手册片段才会发到云端（硅基流动 embedding + 智谱 GLM）。
+  const [semanticMode, setSemanticMode] = useState(false);
+  const [semanticIndex, setSemanticIndex] = useState<SemanticIndex>(IDLE_INDEX);
+  const [semanticResult, setSemanticResult] = useState<SemanticResult | null>(null);
+  const [semanticError, setSemanticError] = useState("");
   const [followTranslationEnabled, setFollowTranslationEnabled] = useState(false);
   const [translationPreviewOpen, setTranslationPreviewOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState<TranslationTarget | null>(null);
@@ -192,6 +206,8 @@ export default function Home() {
     setDocumentId(null);
     setDocumentInfo(null);
     setSearchAnswer(null);
+    setSemanticResult(null);
+    setSemanticIndex(IDLE_INDEX);
     setSearchOpen(false);
     setUploading(true);
 
@@ -261,7 +277,27 @@ export default function Home() {
     setError("");
     setSearching(true);
     setSearchAnswer(null);
+    setSemanticResult(null);
     setSearchOpen(true);
+    if (semanticMode) {
+      try {
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ documentId, question: value.trim() }),
+        });
+        const result = await response.json();
+        if (revision !== documentRevision.current) return;
+        if (!response.ok) throw new Error(result.error || "语义搜索失败，请重试，或打开“精确搜索”。");
+        setSemanticResult({ cards: result.cards, approximate: result.approximate, ms: result.ms });
+      } catch (cause) {
+        if (revision !== documentRevision.current) return;
+        setError(cause instanceof Error ? cause.message : "语义搜索失败，请重试。");
+      } finally {
+        if (revision === documentRevision.current) setSearching(false);
+      }
+      return;
+    }
     try {
       const response = await fetch("/api/ask", {
         method: "POST",
@@ -279,6 +315,38 @@ export default function Home() {
     } finally {
       if (revision === documentRevision.current) setSearching(false);
     }
+  }
+
+  async function toggleSemantic() {
+    if (semanticMode) { setSemanticMode(false); setSemanticResult(null); setSemanticError(""); return; }
+    if (!documentId) return;
+    setSemanticError("");
+    setSemanticMode(true);
+    const revision = documentRevision.current;
+    try {
+      const response = await fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ documentId, action: "index" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "无法建立语义索引。");
+      setSemanticIndex(result.index);
+      while (revision === documentRevision.current) {
+        const poll = await (await fetch(`/api/search?documentId=${documentId}`)).json();
+        setSemanticIndex(poll.index);
+        if (poll.index.state === "ready") break;
+        if (poll.index.state === "error") throw new Error(poll.index.error || "建立语义索引失败。");
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    } catch (cause) {
+      setSemanticMode(false);
+      setSemanticError(cause instanceof Error ? cause.message : "无法建立语义索引。");
+    }
+  }
+
+  function goToCard(card: EvidenceCard) {
+    const bounded = Math.max(1, Math.min(card.page, documentInfo?.pageCount || 1));
+    setActivePage(bounded);
+    pdfReaderRef.current?.goToPage(bounded, card.keyword || card.register);
+    setSearchOpen(false);
+    searchRef.current?.focus({ preventScroll: true });
   }
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -447,6 +515,8 @@ export default function Home() {
     setActivePage(1);
     setQuery("");
     setSearchAnswer(null);
+    setSemanticResult(null);
+    setSemanticIndex(IDLE_INDEX);
     setSearchOpen(false);
     clearTranslationSelection();
     setError("");
@@ -546,8 +616,18 @@ export default function Home() {
             disabled={!documentId}
           />
           <kbd>Ctrl K</kbd>
-          <button type="submit" disabled={!documentId || !query.trim() || searching}>{searching ? "查找中…" : "搜索"}</button>
+          <button type="submit" disabled={!documentId || !query.trim() || searching || (semanticMode && semanticIndex.state !== "ready")}>{searching ? "正在找…" : "搜索"}</button>
         </form>
+        <button
+          className={"translation-mode-button" + (!semanticMode ? " enabled" : "")}
+          onClick={() => void toggleSemantic()}
+          disabled={!documentId}
+          aria-pressed={!semanticMode}
+          title={semanticMode ? "切回只按字找：不联网、不猜" : "关闭精确搜索 = 开启语义搜索（会把问题和命中的手册片段发到云端）"}
+        >
+          精确搜索
+          <span>{!semanticMode ? "已开启" : "已关闭"}</span>
+        </button>
         <button
           className={"translation-mode-button" + (followTranslationEnabled ? " enabled" : "")}
           onClick={toggleFollowTranslation}
@@ -628,7 +708,47 @@ export default function Home() {
             </div>
           )}
 
-          {searchOpen && searchAnswer && (
+          {semanticMode && (
+            <p className="semantic-notice" role="status">
+              语义搜索已开启：你的问题和命中的手册片段会发送到硅基流动（embedding）和智谱（GLM）；PDF 文件本身和文件名不会上传。
+              {semanticIndex.state === "indexing" && ` 正在建立语义索引 ${semanticIndex.done}/${semanticIndex.total}…`}
+              {semanticIndex.state === "ready" && (semanticIndex.reused ? " 索引已就绪（复用本机缓存）。" : " 索引已就绪。")}
+            </p>
+          )}
+          {semanticError && <p className="semantic-notice error" role="alert">{semanticError}</p>}
+
+          {searchOpen && semanticMode && (searching || semanticResult) && (
+            <aside ref={resultsRef} className="search-results-panel semantic-panel" aria-live="polite" aria-label="语义搜索结果面板">
+              <div className="results-heading">
+                <div><small>语义搜索 · 在线</small><strong>{query}</strong></div>
+                <button onClick={() => setSearchOpen(false)} aria-label="关闭搜索结果">×</button>
+              </div>
+              {searching && <div className="no-results">正在找…</div>}
+              {semanticResult && (
+                <>
+                  {semanticResult.approximate && <p className="results-summary">没找到完全一样的，先给你最接近的这条</p>}
+                  {!semanticResult.cards.length && <div className="no-results">没有找到相关原文。可以打开“精确搜索”按字查找。</div>}
+                  <div className="result-list">
+                    {semanticResult.cards.map((card, index) => (
+                      <article className={"semantic-card" + (index === 0 ? " top" : "")} key={card.page + "-" + index}>
+                        <h3>{card.title}</h3>
+                        {card.what && <p className="card-what">{card.what}</p>}
+                        {card.quote_zh && <p className="card-quote">{boldMarks(card.quote_zh)}</p>}
+                        <div className="card-locate">
+                          <b>{card.keyword}</b>
+                          <button onClick={() => goToCard(card)} title="跳到这一页">第 {card.page} 页{card.section ? ` · ${card.section}` : ""}</button>
+                        </div>
+                        <p className="card-en">{card.sentence_en}</p>
+                        <button className="jump-button" onClick={() => goToCard(card)}>跳到这一页 →</button>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+            </aside>
+          )}
+
+          {searchOpen && searchAnswer && !semanticMode && (
             <aside
               ref={resultsRef}
               className="search-results-panel"
@@ -922,7 +1042,7 @@ export default function Home() {
       </div>
 
       <footer className="reader-footer">
-        <span>{documentId ? "搜索与翻译都在本机完成 · PDF 不上传" : "基础搜索在本机完成"}</span>
+        <span>{documentId ? (semanticMode ? "语义搜索：问题和命中片段会发到云端 · PDF 不上传" : "搜索与翻译都在本机完成 · PDF 不上传") : "基础搜索在本机完成"}</span>
         <span>Enter 搜索 · ↑↓ 选结果 · Enter 定位 · Esc 关闭结果</span>
       </footer>
     </main>

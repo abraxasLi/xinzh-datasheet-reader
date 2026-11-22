@@ -22,3 +22,5 @@ tsconfig.tsbuildinfo
 models/
 .zhipu-key
 .deepl-key
+
+chroma_db/
