@@ -4,7 +4,7 @@ import { documents } from "@/lib/documents";
 import { embedTexts, embeddingConfig } from "@/lib/search/embed";
 import { documentOutline, ensureIndex, hybridSearch, indexStatus } from "@/lib/search/index";
 import { rewriteQuery, writeEvidenceCards } from "@/lib/search/evidence";
-import { onlineConfig } from "@/lib/translation/online";
+import { defaultLlm, llmHost, type LlmChoice } from "@/lib/search/llm";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -16,10 +16,12 @@ const requestSchema = z.object({
   documentId: z.string().uuid(),
   action: z.enum(["search", "index"]).default("search"),
   question: z.string().trim().min(1).max(1200).optional(),
+  // 仅调试：横向比较不同模型时按请求覆盖；没开 XINZH_SEARCH_DEBUG 时忽略。
+  llm: z.object({ provider: z.enum(["zhipu", "siliconflow"]), model: z.string().min(2).max(80) }).optional(),
 });
 
 function config() {
-  return { embedding: embeddingConfig(), glm: { provider: onlineConfig().provider, host: onlineConfig().host, configured: onlineConfig().configured } };
+  return { embedding: embeddingConfig(), llm: { provider: defaultLlm().provider, host: llmHost(), model: defaultLlm().model } };
 }
 
 /** 索引进度 / 云端配置状态。 */
@@ -48,7 +50,8 @@ export async function POST(request: Request) {
     if (status.state !== "ready") {
       return NextResponse.json({ error: status.state === "error" ? status.error : "语义索引还没准备好。", index: status }, { status: 409 });
     }
-    const english = await rewriteQuery(question, documentOutline(input.documentId));
+    const llm: LlmChoice = (process.env.XINZH_SEARCH_DEBUG && input.llm) || defaultLlm();
+    const english = await rewriteQuery(question, documentOutline(input.documentId), llm);
     const rewrittenAt = Date.now();
     const searchText = english ? `${question}
 ${english}` : question;
@@ -61,7 +64,7 @@ ${english}` : question;
     const best = hits[0];
     const approximate = keywordHits === 0 && !best.via.includes("keyword") && (best.distance ?? 1) > APPROXIMATE_DISTANCE;
     const used = approximate ? hits.slice(0, 1) : hits;
-    const { cards, ms: glmMs, model } = await writeEvidenceCards(question, used.map((hit) => hit.chunk));
+    const { cards, ms: glmMs, model } = await writeEvidenceCards(question, used.map((hit) => hit.chunk), llm);
     console.info("[semantic-search]", JSON.stringify({ chunks: used.length, rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs, model, approximate }));
     return NextResponse.json({ mode: "semantic", cards, approximate, ms: Date.now() - startedAt,
       ...(process.env.XINZH_SEARCH_DEBUG ? { debug: { english, hits: hits.map((hit) => ({ page: hit.chunk.page, register: hit.chunk.register, via: hit.via, distance: hit.distance, score: hit.score })) } } : {}), timing: { rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs } });
