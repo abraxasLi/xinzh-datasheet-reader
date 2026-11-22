@@ -62,7 +62,7 @@ export function fallbackSentence(text: string, term: string) {
   return flat.slice(start, end).trim().slice(0, 320);
 }
 
-async function chat(system: string, user: string, maxTokens: number, timeoutMs: number): Promise<string> {
+async function chat(system: string, user: string, maxTokens: number, timeoutMs: number, temperature = 0.1): Promise<string> {
   const key = readKey();
   if (!key) throw new Error("未配置智谱 API key（.zhipu-key 或 ZHIPU_API_KEY）。");
   const config = onlineConfig();
@@ -70,7 +70,7 @@ async function chat(system: string, user: string, maxTokens: number, timeoutMs: 
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: config.model, temperature: 0.1, stream: false, max_tokens: maxTokens,
+      model: config.model, temperature, stream: false, max_tokens: maxTokens,
       reasoning_effort: "low", // glm-5.3 系列不能关思考，只能降到 low
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     }),
@@ -85,6 +85,7 @@ const REWRITE_SYSTEM = [
   "你把中文问题改写成英文检索词，用来在英文 MCU 参考手册 / 数据手册里搜索。",
   "只输出一行：8–16 个英文关键词，用空格分隔；包含手册里可能出现的术语、缩写和最可能的寄存器名（如 PERIPH_REG 形式）。",
   "术语对照（只有问题确实涉及才用，无关的一律不要写进去）：复用/重映射=alternate function / remap（AFIO）；看门狗=watchdog（IWDG、WWDG）；外部时钟=external clock（HSE）；波特率=baud rate；预分频=prescaler；中断=interrupt（NVIC、EXTI）。",
+  "问“怎么开 / 启用 / 启动 / 配置”这类操作时，加入 enable start write key bit sequence 这类操作词；问“最高 / 最大 / 范围”时，加入 maximum frequency MHz up to。",
   "问题很短或含糊时，优先按嵌入式外设常识理解，不要往别的方向猜。",
   "不要解释，不要引号，不要换行。",
 ].join("\n");
@@ -92,7 +93,7 @@ const REWRITE_SYSTEM = [
 /** 中文问题 → 英文检索词，让 BM25 能认英文术语，向量也有英文锚点。失败时返回空串（退回原问题）。 */
 export async function rewriteQuery(question: string): Promise<string> {
   try {
-    const text = await chat(REWRITE_SYSTEM, question, 500, 8000);
+    const text = await chat(REWRITE_SYSTEM, question, 500, 8000, 0);
     return text.split("\n")[0].replace(/["`]/g, "").trim().slice(0, 300);
   } catch {
     return "";

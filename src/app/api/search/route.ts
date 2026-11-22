@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 ${english}` : question;
     const [queryEmbedding] = await embedTexts([searchText]);
     const embeddedAt = Date.now();
-    const { hits, keywordHits } = await hybridSearch(input.documentId, searchText, queryEmbedding, 5);
+    const { hits, keywordHits } = await hybridSearch(input.documentId, searchText, queryEmbedding, 5, question);
     const searchedAt = Date.now();
     if (!hits.length) return NextResponse.json({ mode: "semantic", cards: [], approximate: true, ms: searchedAt - startedAt });
 
@@ -63,7 +63,8 @@ ${english}` : question;
     const used = approximate ? hits.slice(0, 1) : hits;
     const { cards, ms: glmMs, model } = await writeEvidenceCards(question, used.map((hit) => hit.chunk));
     console.info("[semantic-search]", JSON.stringify({ chunks: used.length, rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs, model, approximate }));
-    return NextResponse.json({ mode: "semantic", cards, approximate, ms: Date.now() - startedAt, timing: { rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs } });
+    return NextResponse.json({ mode: "semantic", cards, approximate, ms: Date.now() - startedAt,
+      ...(process.env.XINZH_SEARCH_DEBUG ? { debug: { english, hits: hits.map((hit) => ({ page: hit.chunk.page, register: hit.chunk.register, via: hit.via, distance: hit.distance, score: hit.score })) } } : {}), timing: { rewriteMs: rewrittenAt - startedAt, embedMs: embeddedAt - rewrittenAt, searchMs: searchedAt - embeddedAt, glmMs } });
   } catch (error) {
     if (error instanceof z.ZodError) return NextResponse.json({ error: "请求参数不正确。" }, { status: 400 });
     console.error("semantic search failed:", error instanceof Error ? error.message : "unknown");
