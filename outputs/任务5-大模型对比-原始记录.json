@@ -1,0 +1,2532 @@
+[
+ {
+  "spec": "zhipu/glm-5.3-flashx",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 3114,
+    "pages": [
+     175,
+     180,
+     184,
+     181,
+     193
+    ],
+    "english": "AFIO remap alternate function I/O mapping configuration",
+    "timing": {
+     "rewriteMs": 1219,
+     "embedMs": 171,
+     "searchMs": 13,
+     "glmMs": 1694
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用功能重映射和调试IO配置寄存器",
+    "firstQuote": "这是通过软件实现的，方法是编程**复用功能重映射**和调试 I/O 配置寄存器（**AFIO_MAPR**）。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 3266,
+    "pages": [
+     184,
+     175,
+     181,
+     181,
+     193
+    ],
+    "english": "GPIO AFIO alternate function remap configuration",
+    "timing": {
+     "rewriteMs": 1268,
+     "embedMs": 135,
+     "searchMs": 11,
+     "glmMs": 1837
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用重映射与调试 I/O 配置寄存器",
+    "firstQuote": "该位控制 SPI1 的 **NSS、SCK、MISO、MOSI 复用功能** 在 **GPIO 端口** 上的 **映射**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 2784,
+    "pages": [
+     175,
+     180,
+     184,
+     181,
+     193
+    ],
+    "english": "AFIO remap alternate function I/O mapping configuration",
+    "timing": {
+     "rewriteMs": 917,
+     "embedMs": 138,
+     "searchMs": 11,
+     "glmMs": 1702
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用功能和调试I/O配置寄存器（复用映射）",
+    "firstQuote": "可以把一些**复用功能**重新**映射**到其他**引脚**。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 2939,
+    "pages": [
+     494,
+     496,
+     497,
+     98,
+     131
+    ],
+    "english": "IWDG enable start configuration independent watchdog",
+    "timing": {
+     "rewriteMs": 1011,
+     "embedMs": 137,
+     "searchMs": 10,
+     "glmMs": 1766
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG_KR · 独立看门狗键寄存器",
+    "firstQuote": "当通过向键寄存器 **IWDG_KR 写入值 0xCCCC** 来**启动独立看门狗**时，计数器从复位值 0xFFF 开始递减计数。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 3040,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "IWDG WWDG enable configure",
+    "timing": {
+     "rewriteMs": 889,
+     "embedMs": 155,
+     "searchMs": 11,
+     "glmMs": 1969
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · 独立看门狗与窗口看门狗简介",
+    "firstQuote": "这些器件有**两个内置看门狗外设**，兼具高安全等级、定时精度和使用灵活性。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 3110,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 988,
+     "embedMs": 149,
+     "searchMs": 9,
+     "glmMs": 1949
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · 独立看门狗（IWDG）与窗口看门狗（WWDG）简介",
+    "firstQuote": "两个看门狗外设（独立型和窗口型）用于检测和解决由软件故障引起的异常，当计数器达到给定的**超时值**时触发**系统复位**或中断（仅窗口看门狗支持中断）。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 3019,
+    "pages": [
+     127,
+     92,
+     99,
+     104,
+     125
+    ],
+    "english": "RCC external clock maximum frequency range",
+    "timing": {
+     "rewriteMs": 921,
+     "embedMs": 154,
+     "searchMs": 10,
+     "glmMs": 1919
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "HSE clock · 高速外部时钟",
+    "firstQuote": "它可以具有**最高 50 MHz** 的**频率**。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 3034,
+    "pages": [
+     99,
+     104,
+     92,
+     127,
+     125
+    ],
+    "english": "RCC external clock maximum frequency limit",
+    "timing": {
+     "rewriteMs": 907,
+     "embedMs": 141,
+     "searchMs": 10,
+     "glmMs": 1959
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "RCC_CR · 时钟控制寄存器",
+    "firstQuote": "7.3.1 时钟控制寄存器（RCC_CR），地址偏移 0x00，复位值 0x0000 XX83，其中 X 为未定义。该片段没有给出**外部时钟最高**频率。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 3047,
+    "pages": [
+     127,
+     104,
+     94,
+     92,
+     99
+    ],
+    "english": "RCC external clock maximum frequency HSE range",
+    "timing": {
+     "rewriteMs": 1153,
+     "embedMs": 175,
+     "searchMs": 10,
+     "glmMs": 1692
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "HSE clock · 高速外部时钟",
+    "firstQuote": "它可以有高达 **50 MHz** 的**频率**。",
+    "pass": true,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "zhipu/glm-4-flash",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 13639,
+    "pages": [
+     184,
+     176,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs and AFIOs re-mapping",
+    "timing": {
+     "rewriteMs": 2097,
+     "embedMs": 409,
+     "searchMs": 12,
+     "glmMs": 11104
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register (AFIO_MAPR) · 复用映射和调试 I/O 配置寄存器",
+    "firstQuote": "位 0 SPI1_REMAP: SPI1 复用 **映射** 这个位由软件设置和清除。它控制 SPI1 的 NSS、SCK、MISO、MOSI 交替功能在 GPIO 端口的映射。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 16279,
+    "pages": [
+     184,
+     176,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs and AFIOs re-mapping",
+    "timing": {
+     "rewriteMs": 3836,
+     "embedMs": 278,
+     "searchMs": 16,
+     "glmMs": 12134
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register (AFIO_MAPR) · 复用映射和调试 I/O 配置寄存器",
+    "firstQuote": "位 0 SPI1_REMAP: SPI1 复用 **映射** 这个位由软件设置和清除。它控制 SPI1 的 NSS、SCK、MISO、MOSI 交替功能在 GPIO 端口的映射。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 12186,
+    "pages": [
+     184,
+     176,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs and AFIOs re-mapping",
+    "timing": {
+     "rewriteMs": 654,
+     "embedMs": 297,
+     "searchMs": 15,
+     "glmMs": 11200
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register (AFIO_MAPR) · 复用映射和调试 I/O 配置寄存器",
+    "firstQuote": "位 0 SPI1_REMAP: SPI1 复用 **映射** 这个位由软件设置和清除。它控制 SPI1 的 NSS、SCK、MISO、MOSI **复用** 功能在 GPIO 端口的映射。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 10809,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 410,
+     "embedMs": 395,
+     "searchMs": 6,
+     "glmMs": 9988
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "看门狗时钟 · 独立看门狗（IWDG）",
+    "firstQuote": "如果独立看门狗（IWDG）通过硬件选项或软件访问启动，LSI振荡器将被强制开启且无法关闭。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 10883,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 591,
+     "embedMs": 502,
+     "searchMs": 7,
+     "glmMs": 9772
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "看门狗时钟 · 独立看门狗（IWDG）",
+    "firstQuote": "如果独立看门狗（IWDG）通过硬件选项或软件访问启动，LSI振荡器将被强制开启且无法关闭。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 9013,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 394,
+     "embedMs": 280,
+     "searchMs": 7,
+     "glmMs": 8322
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "看门狗时钟 · 独立看门狗（IWDG）",
+    "firstQuote": "如果独立看门狗（IWDG）通过硬件选项或软件访问启动，LSI振荡器将被强制开启且无法关闭。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 8323,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 1021,
+     "embedMs": 276,
+     "searchMs": 7,
+     "glmMs": 7009
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "时钟输出能力 · 时钟输出能力",
+    "firstQuote": "选定的输出到 MCO 的时钟必须不超过 50 MHz（最大 I/O 速度）.",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 6828,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 469,
+     "embedMs": 258,
+     "searchMs": 8,
+     "glmMs": 6081
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "时钟输出能力 · 时钟输出能力",
+    "firstQuote": "选定的输出到 MCO 的时钟必须不超过 50 MHz（最大 I/O 速度）.",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 9695,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 656,
+     "embedMs": 280,
+     "searchMs": 8,
+     "glmMs": 8742
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "时钟输出能力 · 时钟输出能力",
+    "firstQuote": "选定的输出到MCO的时钟必须不超过50 MHz（最大I/O速度）。",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/Qwen/Qwen3-8B",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 21152,
+    "pages": [
+     176,
+     184,
+     162,
+     193,
+     181
+    ],
+    "english": "Multiplexed mapping",
+    "timing": {
+     "rewriteMs": 483,
+     "embedMs": 248,
+     "searchMs": 11,
+     "glmMs": 20395
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "CAN2 alternate function remapping · CAN2复用映射",
+    "firstQuote": "**CAN2** 是可用的在 connectivity line 设备中。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 21796,
+    "pages": [
+     176,
+     184,
+     162,
+     193,
+     181
+    ],
+    "english": "Multiplexed mapping",
+    "timing": {
+     "rewriteMs": 620,
+     "embedMs": 364,
+     "searchMs": 11,
+     "glmMs": 20786
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "CAN2 alternate function remapping · CAN2复用映射",
+    "firstQuote": "**CAN2** 是可用的在 connectivity line 设备中。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 5351,
+    "pages": [
+     176,
+     184,
+     162,
+     193,
+     181
+    ],
+    "english": "Multiplexed mapping",
+    "timing": {
+     "rewriteMs": 528,
+     "embedMs": 306,
+     "searchMs": 10,
+     "glmMs": 4493
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "CAN2 alternate function remapping · CAN2复用映射",
+    "firstQuote": "**CAN2** 是可用的 in **connectivity line devices**.",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 4615,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 635,
+     "embedMs": 149,
+     "searchMs": 11,
+     "glmMs": 3806
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction · 看门狗介绍",
+    "firstQuote": "The devices have two embedded **watchdog peripherals** which offer a combination of high safety level, timing accuracy and flexibility of use.",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 4949,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 645,
+     "embedMs": 201,
+     "searchMs": 11,
+     "glmMs": 4078
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction · 看门狗介绍",
+    "firstQuote": "The devices have two embedded **watchdog peripherals** which offer a combination of high safety level, timing accuracy and flexibility of use.",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 4578,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 586,
+     "embedMs": 132,
+     "searchMs": 13,
+     "glmMs": 3833
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction · 看门狗介绍",
+    "firstQuote": "The devices have two embedded **watchdog peripherals** which offer a combination of high safety level, timing accuracy and flexibility of use.",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 25704,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 511,
+     "embedMs": 155,
+     "searchMs": 10,
+     "glmMs": 25012
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "Clocks · 时钟",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (**SYSCLK**)",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 24715,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 724,
+     "embedMs": 370,
+     "searchMs": 11,
+     "glmMs": 23595
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "Clocks · 时钟",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (**SYSCLK**)",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 4699,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 584,
+     "embedMs": 275,
+     "searchMs": 12,
+     "glmMs": 3812
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clocks · 时钟",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (**SYSCLK**)",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/Qwen/Qwen3.5-9B",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 26009,
+    "pages": [
+     193,
+     184,
+     181,
+     180,
+     164
+    ],
+    "english": "alternate-function I/Os AFIOs",
+    "timing": {
+     "rewriteMs": 570,
+     "embedMs": 399,
+     "searchMs": 11,
+     "glmMs": 25015
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register2 (AFIO_MAPR2)",
+    "firstQuote": "0: 无复用映射 (TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3)",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 26047,
+    "pages": [
+     193,
+     181,
+     184,
+     180,
+     164
+    ],
+    "english": "alternate-function I/Os AFIOs",
+    "timing": {
+     "rewriteMs": 687,
+     "embedMs": 323,
+     "searchMs": 14,
+     "glmMs": 25008
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR2 · 复用映射配置寄存器",
+    "firstQuote": "0: 无**复用映射**（TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3）",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 12861,
+    "pages": [
+     193,
+     184,
+     181,
+     180,
+     164
+    ],
+    "english": "alternate-function I/Os AFIOs",
+    "timing": {
+     "rewriteMs": 1046,
+     "embedMs": 300,
+     "searchMs": 13,
+     "glmMs": 11484
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register2 (AFIO_MAPR2)",
+    "firstQuote": "0: 无 **复用映射** (TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3) 1: **复用映射** (TIM9_CH1 在 PE5 和 TIM9_CH2 在 PE6)",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 13083,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG configure",
+    "timing": {
+     "rewriteMs": 762,
+     "embedMs": 135,
+     "searchMs": 11,
+     "glmMs": 12161
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗 (IWDG) 由其专用的低速时钟 (LSI) 驱动，因此即使主时钟失效也能保持**active**（运行）。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 17126,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG configure",
+    "timing": {
+     "rewriteMs": 649,
+     "embedMs": 132,
+     "searchMs": 11,
+     "glmMs": 16319
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · 看门狗介绍",
+    "firstQuote": "当计数器达到给定的**超时值**时，触发**系统复位**或中断（仅窗口看门狗）。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 19389,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 682,
+     "embedMs": 337,
+     "searchMs": 10,
+     "glmMs": 18344
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG 介绍 · 看门狗简介",
+    "firstQuote": "当计数器达到给定的**超时值**时，触发**系统复位**或中断（仅窗口看门狗）。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 8859,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     774
+    ],
+    "english": "external clock maximum frequency limit range",
+    "timing": {
+     "rewriteMs": 687,
+     "embedMs": 123,
+     "searchMs": 11,
+     "glmMs": 8022
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock sources · 时钟源",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (SYSCLK) · 三种不同的**时钟源**可用于驱动系统时钟",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 10920,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     774
+    ],
+    "english": "external clock maximum frequency limit range",
+    "timing": {
+     "rewriteMs": 530,
+     "embedMs": 127,
+     "searchMs": 11,
+     "glmMs": 10239
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock sources · 时钟源",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (**SYSCLK**)",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 16511,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     774
+    ],
+    "english": "external clock maximum frequency limit range",
+    "timing": {
+     "rewriteMs": 502,
+     "embedMs": 397,
+     "searchMs": 14,
+     "glmMs": 15581
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock sources · 时钟源",
+    "firstQuote": "Three different clock sources can be used to drive the system clock (**SYSCLK**)",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/Qwen/Qwen3.5-4B",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 17292,
+    "pages": [
+     193,
+     184,
+     84,
+     83,
+     166
+    ],
+    "english": "GPIOs and AFIOs",
+    "timing": {
+     "rewriteMs": 743,
+     "embedMs": 399,
+     "searchMs": 15,
+     "glmMs": 16120
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "AF remap and debug I/O configuration register2 (AFIO_MAPR2) · AF 复用映射和调试 I/O 配置寄存器 2",
+    "firstQuote": "0：无**复用映射**（TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3）1：**复用映射**（TIM9_CH1 在 PE5 和 TIM9_CH2 在 PE6）",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 20653,
+    "pages": [
+     193,
+     184,
+     84,
+     83,
+     166
+    ],
+    "english": "GPIOs and AFIOs",
+    "timing": {
+     "rewriteMs": 712,
+     "embedMs": 351,
+     "searchMs": 12,
+     "glmMs": 19563
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR2 · AF 复用映射寄存器",
+    "firstQuote": "0: **无复用映射**（TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3）1: **复用映射**（TIM9_CH1 在 PE5 和 TIM9_CH2 在 PE6）",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 10278,
+    "pages": [
+     193,
+     184,
+     84,
+     83,
+     166
+    ],
+    "english": "GPIOs and AFIOs",
+    "timing": {
+     "rewriteMs": 797,
+     "embedMs": 172,
+     "searchMs": 13,
+     "glmMs": 9282
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR2 · AF 复用映射寄存器",
+    "firstQuote": "**No remap**（无复用映射）（TIM9_CH1 在 PA2 和 TIM9_CH2 在 PA3）；**Remap**（复用映射）（TIM9_CH1 在 PE5 和 TIM9_CH2 在 PE6）",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 8482,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 521,
+     "embedMs": 303,
+     "searchMs": 10,
+     "glmMs": 7631
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "7.2.9 Watchdog clock If the Independent watchdog (IWDG) is started by either hardware option or s",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 1445,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 642,
+     "embedMs": 133,
+     "searchMs": 11,
+     "glmMs": 643
+    },
+    "cardsFull": 0,
+    "cards": 5,
+    "firstTitle": "7.2.9 Watchdog clock If the Independent watchdog (IWDG) is started by either hardware option or s",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 8516,
+    "pages": [
+     98,
+     131,
+     496,
+     497,
+     494
+    ],
+    "english": "enable watchdog",
+    "timing": {
+     "rewriteMs": 491,
+     "embedMs": 137,
+     "searchMs": 9,
+     "glmMs": 7866
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "7.2.9 Watchdog clock If the Independent watchdog (IWDG) is started by either hardware option or s",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 11985,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 667,
+     "embedMs": 327,
+     "searchMs": 12,
+     "glmMs": 10962
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "MCO 时钟输出功能 · 时钟输出功能",
+    "firstQuote": "选定的输出到 MCO 的时钟不得超过 **50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 11934,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 706,
+     "embedMs": 148,
+     "searchMs": 10,
+     "glmMs": 11055
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "MCO 时钟输出 · 微控制器时钟输出 (MCO) 能力",
+    "firstQuote": "选定的输出到 MCO 的时钟不得超过 **50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 11205,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 706,
+     "embedMs": 142,
+     "searchMs": 10,
+     "glmMs": 10330
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "MCO 时钟输出 · 微控制器时钟输出 (MCO) 功能",
+    "firstQuote": "输出到 MCO 的选定时钟不得超过 **50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/THUDM/GLM-4-9B-0414",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 9486,
+    "pages": [
+     184,
+     166,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs AFIOs mapping configuration",
+    "timing": {
+     "rewriteMs": 420,
+     "embedMs": 148,
+     "searchMs": 13,
+     "glmMs": 8890
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用映射和调试I/O配置寄存器",
+    "firstQuote": "Bit 0 **SPI1_REMAP**: SPI1复用映射",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 16184,
+    "pages": [
+     184,
+     166,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs AFIOs mapping configuration",
+    "timing": {
+     "rewriteMs": 329,
+     "embedMs": 143,
+     "searchMs": 13,
+     "glmMs": 15683
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 9546,
+    "pages": [
+     184,
+     166,
+     84,
+     83,
+     193
+    ],
+    "english": "GPIOs AFIOs mapping configuration",
+    "timing": {
+     "rewriteMs": 272,
+     "embedMs": 386,
+     "searchMs": 13,
+     "glmMs": 8858
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用映射和调试I/O配置寄存器",
+    "firstQuote": "Bit 0 **SPI1_REMAP**: SPI1复用映射",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 5619,
+    "pages": [
+     496,
+     497,
+     494,
+     131,
+     98
+    ],
+    "english": "Independent watchdog start configure enable",
+    "timing": {
+     "rewriteMs": 474,
+     "embedMs": 279,
+     "searchMs": 13,
+     "glmMs": 4839
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG_KR · 看门狗密钥寄存器",
+    "firstQuote": "地址偏移: 0x00 重置值: 0x0000 0000 (由 Standby 模式重置)",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 5960,
+    "pages": [
+     496,
+     497,
+     494,
+     131,
+     98
+    ],
+    "english": "Independent watchdog start configure enable",
+    "timing": {
+     "rewriteMs": 286,
+     "embedMs": 202,
+     "searchMs": 10,
+     "glmMs": 5446
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG_KR · 看门狗密钥寄存器",
+    "firstQuote": "地址偏移量: 0x00",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 5080,
+    "pages": [
+     496,
+     497,
+     494,
+     131,
+     98
+    ],
+    "english": "Independent watchdog start configure enable",
+    "timing": {
+     "rewriteMs": 269,
+     "embedMs": 159,
+     "searchMs": 13,
+     "glmMs": 4624
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG_KR · 看门狗密钥寄存器",
+    "firstQuote": "地址偏移量: 0x00",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 13606,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 289,
+     "embedMs": 201,
+     "searchMs": 10,
+     "glmMs": 13089
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "HSI oscillator clock · HSI振荡器时钟",
+    "firstQuote": "当 **HSI** 作为 **PLL** 时钟输入时，可达到的 **系统时钟** 最高频率是64 MHz。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 4638,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 366,
+     "embedMs": 166,
+     "searchMs": 12,
+     "glmMs": 4079
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "HSI oscillator clock · HSI振荡器时钟",
+    "firstQuote": "当 **HSI** 作为 **PLL** 时钟输入时，可达到的 **系统时钟** 最高频率是64 MHz。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 12184,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 305,
+     "embedMs": 147,
+     "searchMs": 10,
+     "glmMs": 11706
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "HSI oscillator clock · HSI振荡器时钟",
+    "firstQuote": "当 **HSI** 作为 **PLL** 时钟输入时，可达到的 **系统时钟** 最高频率是64 MHz。",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/Qwen/Qwen2.5-7B-Instruct",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 5827,
+    "pages": [
+     507,
+     517,
+     508,
+     513,
+     510
+    ],
+    "english": "Flexible static memory controller FSMC",
+    "timing": {
+     "rewriteMs": 430,
+     "embedMs": 151,
+     "searchMs": 13,
+     "glmMs": 5215
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "FSMC main features · FSMC 主要特性",
+    "firstQuote": "All **external** memories share the addresses, data and control signals with the controller.",
+    "pass": false,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 8151,
+    "pages": [
+     507,
+     517,
+     508,
+     513,
+     510
+    ],
+    "english": "Flexible static memory controller FSMC",
+    "timing": {
+     "rewriteMs": 2247,
+     "embedMs": 355,
+     "searchMs": 12,
+     "glmMs": 5523
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "FSMC main features · FSMC 主要特性",
+    "firstQuote": "所有外部存储器与控制器共享**地址**、数据和控制信号。",
+    "pass": false,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 5107,
+    "pages": [
+     507,
+     517,
+     508,
+     513,
+     510
+    ],
+    "english": "Flexible static memory controller FSMC",
+    "timing": {
+     "rewriteMs": 625,
+     "embedMs": 198,
+     "searchMs": 14,
+     "glmMs": 4255
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "FSMC main features · FSMC 主要特性",
+    "firstQuote": "All external **memories** share the addresses, data and control signals with the controller.",
+    "pass": false,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 26370,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable configure watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 1182,
+     "embedMs": 141,
+     "searchMs": 13,
+     "glmMs": 25018
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · IWDG介绍",
+    "firstQuote": "独立的看门狗（IWDG）由自己的专用低速时钟（LSI）供电，因此即使主时钟失效也能保持活动状态",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 7850,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable configure watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 774,
+     "embedMs": 447,
+     "searchMs": 12,
+     "glmMs": 6598
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · 看门狗介绍",
+    "firstQuote": "The **independent watchdog** (IWDG) is clocked by its own dedicated low-speed clock (LSI) and thus stays active even if the main clock fails.",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 7263,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable configure watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 693,
+     "embedMs": 351,
+     "searchMs": 12,
+     "glmMs": 6189
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG introduction · 看门狗介绍",
+    "firstQuote": "The **independent watchdog** (IWDG) is clocked by its own dedicated low-speed clock (LSI) and thus stays active even if the main clock fails.",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 8665,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 872,
+     "embedMs": 285,
+     "searchMs": 13,
+     "glmMs": 7480
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock configuration register (RCC_CFGR) · Clock configuration register",
+    "firstQuote": "所选时钟输出到MCO不能超过 **50 MHz** (最大I/O速度)",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 4873,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 981,
+     "embedMs": 144,
+     "searchMs": 10,
+     "glmMs": 3720
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock configuration register (RCC_CFGR) · Clock configuration register",
+    "firstQuote": "所选时钟输出到MCO不能超过 **50 MHz** (最大I/O速度)",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 5032,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "maximum external clock",
+    "timing": {
+     "rewriteMs": 286,
+     "embedMs": 174,
+     "searchMs": 13,
+     "glmMs": 4545
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock configuration register (RCC_CFGR) · Clock configuration register",
+    "firstQuote": "所选时钟输出到MCO不能超过 **50 MHz** (最大I/O速度)",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 12219,
+    "pages": [
+     184,
+     180,
+     193,
+     181,
+     176
+    ],
+    "english": "AFIO remapping",
+    "timing": {
+     "rewriteMs": 415,
+     "embedMs": 133,
+     "searchMs": 13,
+     "glmMs": 11642
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用映射和调试I/O配置寄存器",
+    "firstQuote": "位 0 SPI1_REMAP：SPI1 **复用映射**。此位由软件设置和清除。它控制SPI1 NSS、SCK、MISO、MOSI在GPIO端口上的复用功能映射。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 9439,
+    "pages": [
+     184,
+     180,
+     193,
+     181,
+     176
+    ],
+    "english": "AFIO remapping",
+    "timing": {
+     "rewriteMs": 503,
+     "embedMs": 137,
+     "searchMs": 12,
+     "glmMs": 8770
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用映射与调试I/O配置寄存器",
+    "firstQuote": "1: **复用** (NSS/PA15, SCK/PB3, MISO/PB4, MOSI/PB5)",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 8837,
+    "pages": [
+     184,
+     180,
+     193,
+     181,
+     176
+    ],
+    "english": "AFIO remapping",
+    "timing": {
+     "rewriteMs": 684,
+     "embedMs": 153,
+     "searchMs": 12,
+     "glmMs": 7971
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用映射和调试I/O配置寄存器",
+    "firstQuote": "位0 SPI1_REMAP：SPI1 **复用映射**。此位由软件设置和清除。它控制SPI1 NSS、SCK、MISO、MOSI复用功能在GPIO端口上的映射。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 3742,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "enable IWDG enable WWDG",
+    "timing": {
+     "rewriteMs": 469,
+     "embedMs": 205,
+     "searchMs": 14,
+     "glmMs": 3038
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗（IWDG）由其专用的低速时钟（LSI）驱动，因此即使主时钟失效，仍能保持活动状态。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 3993,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "enable IWDG enable WWDG",
+    "timing": {
+     "rewriteMs": 446,
+     "embedMs": 205,
+     "searchMs": 10,
+     "glmMs": 3315
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗（IWDG）由其自身的专用低速时钟（LSI）驱动，因此即使主时钟失效，它仍能保持活动状态。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 5121,
+    "pages": [
+     494,
+     504,
+     496,
+     500,
+     494
+    ],
+    "english": "enable IWDG enable WWDG",
+    "timing": {
+     "rewriteMs": 663,
+     "embedMs": 178,
+     "searchMs": 14,
+     "glmMs": 4251
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "**独立看门狗**（IWDG）由其专用的低速时钟（LSI）驱动，因此即使主时钟失效，仍能保持运行。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 6297,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 279,
+     "embedMs": 132,
+     "searchMs": 7,
+     "glmMs": 5868
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "FLITFCLK · Flash编程接口时钟",
+    "firstQuote": "**14 MHz** max",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 5405,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 680,
+     "embedMs": 321,
+     "searchMs": 9,
+     "glmMs": 4385
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "FLITFCLK · Flash编程接口时钟",
+    "firstQuote": "**14 MHz** max",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 5326,
+    "pages": [
+     125,
+     92,
+     101,
+     184,
+     132
+    ],
+    "english": "external clock maximum frequency",
+    "timing": {
+     "rewriteMs": 336,
+     "embedMs": 215,
+     "searchMs": 10,
+     "glmMs": 4749
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "FLITFCLK · Flash编程接口时钟",
+    "firstQuote": "**14 MHz** max",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/deepseek-ai/DeepSeek-V4-Flash",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 8952,
+    "pages": [
+     184,
+     193,
+     176,
+     181,
+     194
+    ],
+    "english": "GPIOs AFIOs remap",
+    "timing": {
+     "rewriteMs": 5045,
+     "embedMs": 504,
+     "searchMs": 11,
+     "glmMs": 3377
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用重映射和调试I/O配置寄存器",
+    "firstQuote": "该位由软件设置和清除，它控制SPI1的NSS、SCK、MISO、MOSI在GPIO端口上的**复用映射**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 4481,
+    "pages": [
+     184,
+     193,
+     176,
+     181,
+     194
+    ],
+    "english": "GPIOs AFIOs remap",
+    "timing": {
+     "rewriteMs": 937,
+     "embedMs": 158,
+     "searchMs": 12,
+     "glmMs": 3356
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用重映射和调试I/O配置寄存器",
+    "firstQuote": "它控制SPI1的NSS、SCK、MISO、MOSI在GPIO端口上的**复用功能映射**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 8684,
+    "pages": [
+     176,
+     184,
+     193,
+     181,
+     180
+    ],
+    "english": "GPIOs AFIOs alternate function remap",
+    "timing": {
+     "rewriteMs": 5008,
+     "embedMs": 289,
+     "searchMs": 14,
+     "glmMs": 3357
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "CAN2 alternate function remapping · CAN2 复用映射",
+    "firstQuote": "外部信号可以**重映射**，如表 35 所示。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 4152,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 1190,
+     "embedMs": 145,
+     "searchMs": 12,
+     "glmMs": 2787
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG Introduction · 独立看门狗介绍",
+    "firstQuote": "独立看门狗（IWDG）由**专用低速时钟**（LSI）驱动，因此即使主时钟故障也能保持**激活**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 4779,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 1594,
+     "embedMs": 157,
+     "searchMs": 15,
+     "glmMs": 2999
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗（IWDG）由**专用低速时钟**（LSI）驱动，因此即使**主时钟**故障，它仍保持**激活**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 7075,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 1348,
+     "embedMs": 182,
+     "searchMs": 12,
+     "glmMs": 5516
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗（IWDG）由**专用低速时钟**（LSI）驱动，因此即使**主时钟失效**也能保持活动。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 4514,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 724,
+     "embedMs": 316,
+     "searchMs": 13,
+     "glmMs": 3445
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock-out capability · 时钟输出能力",
+    "firstQuote": "输出到 MCO 的所选时钟**不得超过 50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 4290,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 1011,
+     "embedMs": 196,
+     "searchMs": 11,
+     "glmMs": 3053
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock-out capability · 时钟输出能力",
+    "firstQuote": "输出到 MCO 的所选时钟**不得超过 50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 3552,
+    "pages": [
+     132,
+     92,
+     101,
+     99,
+     125
+    ],
+    "english": "external clock maximum",
+    "timing": {
+     "rewriteMs": 554,
+     "embedMs": 193,
+     "searchMs": 12,
+     "glmMs": 2778
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "Clock-out capability · 时钟输出能力",
+    "firstQuote": "输出到 MCO 的所选时钟**不得超过 50 MHz**（最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/inclusionAI/Ling-flash-2.0",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 13547,
+    "pages": [
+     176,
+     175,
+     184,
+     180,
+     193
+    ],
+    "english": "Alternate function mapping AFIO remap",
+    "timing": {
+     "rewriteMs": 361,
+     "embedMs": 158,
+     "searchMs": 19,
+     "glmMs": 12991
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "CAN2 alternate function remapping · CAN2 复用映射",
+    "firstQuote": "外部信号可以按照表35进行**复用映射**",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 13699,
+    "pages": [
+     176,
+     184,
+     193,
+     180,
+     178
+    ],
+    "english": "Alternate function mapping AFIOs",
+    "timing": {
+     "rewriteMs": 330,
+     "embedMs": 315,
+     "searchMs": 19,
+     "glmMs": 13013
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "9.3.4 CAN2 alternate function remapping CAN2 is available in connectivity line devices",
+    "firstQuote": "",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 14089,
+    "pages": [
+     176,
+     184,
+     193,
+     180,
+     178
+    ],
+    "english": "Alternate function mapping AFIOs",
+    "timing": {
+     "rewriteMs": 353,
+     "embedMs": 356,
+     "searchMs": 17,
+     "glmMs": 13344
+    },
+    "cardsFull": 1,
+    "cards": 5,
+    "firstTitle": "9.3.4 CAN2 alternate function remapping CAN2 is available in connectivity line devices",
+    "firstQuote": "",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 12637,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 371,
+     "embedMs": 169,
+     "searchMs": 14,
+     "glmMs": 12068
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction The devices have two embedded watchdog peripherals which offer a combinat",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 6547,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 389,
+     "embedMs": 355,
+     "searchMs": 12,
+     "glmMs": 5772
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "独立看门狗 **(IWDG)** 由其专用低速时钟 **(LSI)** 驱动，因此即使主时钟失效仍保持**活跃**状态。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 13052,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 340,
+     "embedMs": 153,
+     "searchMs": 15,
+     "glmMs": 12528
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "IWDG · 独立看门狗",
+    "firstQuote": "**独立**看门狗 (IWDG) 由其自身**专用低速时钟** (LSI) 驱动，因此即使**主时钟失效**仍保持**活跃**状态。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 13657,
+    "pages": [
+     92,
+     125,
+     101,
+     99,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 420,
+     "embedMs": 254,
+     "searchMs": 13,
+     "glmMs": 12953
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "7.2 Clocks Three different clock sources can be used to drive the system clock (SYSCLK)",
+    "firstQuote": "",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 14530,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 311,
+     "embedMs": 311,
+     "searchMs": 16,
+     "glmMs": 13876
+    },
+    "cardsFull": 0,
+    "cards": 5,
+    "firstTitle": "7.2 Clocks Three different clock sources can be used to drive the system clock (SYSCLK)",
+    "firstQuote": "",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 14004,
+    "pages": [
+     92,
+     125,
+     101,
+     184,
+     132
+    ],
+    "english": "External clock maximum frequency",
+    "timing": {
+     "rewriteMs": 284,
+     "embedMs": 149,
+     "searchMs": 12,
+     "glmMs": 13539
+    },
+    "cardsFull": 0,
+    "cards": 5,
+    "firstTitle": "7.2 Clocks Three different clock sources can be used to drive the system clock (SYSCLK)",
+    "firstQuote": "",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ },
+ {
+  "spec": "siliconflow/zai-org/GLM-5.3-Flash",
+  "rows": [
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 33378,
+    "pages": [
+     180,
+     184,
+     193,
+     691,
+     626
+    ],
+    "english": "",
+    "timing": {
+     "rewriteMs": 8012,
+     "embedMs": 338,
+     "searchMs": 8,
+     "glmMs": 25005
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · AF 重映射与调试 I/O 配置寄存器",
+    "firstQuote": "请参阅 **AF 复用重映射**和调试 I/O 配置寄存器（AFIO_MAPR）。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 30012,
+    "pages": [
+     176,
+     184,
+     193,
+     181,
+     159
+    ],
+    "english": "General-purpose and alternate-function I/Os (GPIOs and AFIOs) alternate function mapping remap",
+    "timing": {
+     "rewriteMs": 7987,
+     "embedMs": 354,
+     "searchMs": 10,
+     "glmMs": 21643
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "9.3.4 CAN2 alternate function remapping · CAN2 复用功能重映射",
+    "firstQuote": "外部信号可以**重映射**，如表 35 所示。",
+    "pass": true,
+    "top1": false
+   },
+   {
+    "q": "复用映射",
+    "ok": true,
+    "wall": 25364,
+    "pages": [
+     184,
+     180,
+     176,
+     181,
+     193
+    ],
+    "english": "alternate-function I/Os AFIOs mapping remap",
+    "timing": {
+     "rewriteMs": 6885,
+     "embedMs": 360,
+     "searchMs": 14,
+     "glmMs": 18087
+    },
+    "cardsFull": 5,
+    "cards": 5,
+    "firstTitle": "AFIO_MAPR · 复用功能重映射和调试I/O配置寄存器",
+    "firstQuote": "它控制 SPI1 的 NSS、SCK、MISO、MOSI **复用功能** 在 GPIO 端口上的 **映射**。",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 27150,
+    "pages": [
+     494,
+     500,
+     504,
+     496,
+     494
+    ],
+    "english": "enable watchdog IWDG WWDG",
+    "timing": {
+     "rewriteMs": 1836,
+     "embedMs": 270,
+     "searchMs": 13,
+     "glmMs": 25016
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction The devices have two embedded watchdog peripherals which offer a combinat",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 28778,
+    "pages": [
+     494,
+     496,
+     497,
+     494,
+     500
+    ],
+    "english": "Independent watchdog IWDG Window watchdog WWDG enable",
+    "timing": {
+     "rewriteMs": 3555,
+     "embedMs": 182,
+     "searchMs": 12,
+     "glmMs": 25011
+    },
+    "cardsFull": 1,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction The devices have two embedded watchdog peripherals which offer a combinat",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "怎么开看门狗",
+    "ok": true,
+    "wall": 29641,
+    "pages": [
+     494,
+     496,
+     497,
+     494,
+     500
+    ],
+    "english": "Independent watchdog IWDG Window watchdog WWDG enable",
+    "timing": {
+     "rewriteMs": 4318,
+     "embedMs": 276,
+     "searchMs": 14,
+     "glmMs": 25017
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "19.1 IWDG introduction The devices have two embedded watchdog peripherals which offer a combinat",
+    "firstQuote": "",
+    "pass": true,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 33405,
+    "pages": [
+     132,
+     98,
+     101,
+     92,
+     115
+    ],
+    "english": "",
+    "timing": {
+     "rewriteMs": 8008,
+     "embedMs": 357,
+     "searchMs": 13,
+     "glmMs": 25009
+    },
+    "cardsFull": 2,
+    "cards": 5,
+    "firstTitle": "8.2.10 Clock-out capability The microcontroller clock output (MCO) capability allows the clock to",
+    "firstQuote": "",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 33444,
+    "pages": [
+     132,
+     98,
+     101,
+     92,
+     115
+    ],
+    "english": "",
+    "timing": {
+     "rewriteMs": 8009,
+     "embedMs": 394,
+     "searchMs": 11,
+     "glmMs": 25013
+    },
+    "cardsFull": 3,
+    "cards": 5,
+    "firstTitle": "8.2.10 Clock-out capability The microcontroller clock output (MCO) capability allows the clock to",
+    "firstQuote": "",
+    "pass": false,
+    "top1": true
+   },
+   {
+    "q": "外部时钟最高多少",
+    "ok": true,
+    "wall": 33400,
+    "pages": [
+     132,
+     98,
+     101,
+     92,
+     115
+    ],
+    "english": "",
+    "timing": {
+     "rewriteMs": 8013,
+     "embedMs": 348,
+     "searchMs": 11,
+     "glmMs": 25011
+    },
+    "cardsFull": 4,
+    "cards": 5,
+    "firstTitle": "8.2.10 Clock-out capability (MCO) · 时钟输出能力",
+    "firstQuote": "输出到 MCO 的所选时钟不得超过 **50 MHz**（即最大 I/O 速度）。",
+    "pass": false,
+    "top1": true
+   }
+  ]
+ }
+]

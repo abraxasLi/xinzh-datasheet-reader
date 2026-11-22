@@ -1,8 +1,6 @@
-// 让 GLM 现场把最像的几段写成中文证据卡。不训练、不写死题集。
+// 让大模型现场把最像的几段写成中文证据卡。不训练、不写死题集。
 // 发送内容：用户的问题 + 命中的手册片段；不发送 PDF 文件本身、文件名。
-import fs from "node:fs";
-import path from "node:path";
-import { onlineConfig } from "@/lib/translation/online";
+import { chatOnce, defaultLlm, type LlmChoice } from "./llm";
 import type { Chunk } from "./chunk";
 
 export type EvidenceCard = {
@@ -15,19 +13,6 @@ export type EvidenceCard = {
   section: string;
   register: string;
 };
-
-function readKey(): string {
-  const fromEnv = (process.env.ZHIPU_API_KEY || "").trim();
-  if (fromEnv) return fromEnv;
-  try {
-    const file = path.join(process.cwd(), ".zhipu-key");
-    if (!fs.existsSync(file)) return "";
-    const match = fs.readFileSync(file, "utf8").trim().match(/^(?:ZHIPU_API_KEY\s*=\s*)?(.+)$/m);
-    return (match?.[1] || "").trim().replace(/^["']|["']$/g, "");
-  } catch {
-    return "";
-  }
-}
 
 const SYSTEM = [
   "你是嵌入式芯片手册的中文检索助手，面向不懂英文的初学者。",
@@ -62,23 +47,8 @@ export function fallbackSentence(text: string, term: string) {
   return flat.slice(start, end).trim().slice(0, 320);
 }
 
-async function chat(system: string, user: string, maxTokens: number, timeoutMs: number, temperature = 0.1): Promise<string> {
-  const key = readKey();
-  if (!key) throw new Error("未配置智谱 API key（.zhipu-key 或 ZHIPU_API_KEY）。");
-  const config = onlineConfig();
-  const response = await fetch(`${config.base}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      model: config.model, temperature, stream: false, max_tokens: maxTokens,
-      reasoning_effort: "low", // glm-5.3 系列不能关思考，只能降到 low
-      messages: [{ role: "system", content: system }, { role: "user", content: user }],
-    }),
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  const payload = (await response.json().catch(() => ({}))) as { choices?: { message?: { content?: string } }[]; error?: { message?: string } };
-  if (!response.ok) throw new Error(`智谱请求失败（${response.status}）：${(payload.error?.message || "").slice(0, 120)}`);
-  return payload.choices?.[0]?.message?.content?.trim() || "";
+function chat(llm: LlmChoice, system: string, user: string, maxTokens: number, timeoutMs: number, temperature = 0.1) {
+  return chatOnce(llm, system, user, maxTokens, timeoutMs, temperature);
 }
 
 const REWRITE_SYSTEM = [
@@ -93,21 +63,21 @@ const REWRITE_SYSTEM = [
 ].join("\n");
 
 /** 中文问题 → 英文检索词，让 BM25 能认英文术语，向量也有英文锚点。失败时返回空串（退回原问题）。 */
-export async function rewriteQuery(question: string, outline: string[] = []): Promise<string> {
+export async function rewriteQuery(question: string, outline: string[] = [], llm: LlmChoice = defaultLlm()): Promise<string> {
   try {
     const user = outline.length ? `本手册的章节/外设名词表：${outline.join("；")}\n\n问题：${question}` : `问题：${question}`;
-    const text = await chat(REWRITE_SYSTEM, user, 500, 8000, 0);
+    const text = await chat(llm, REWRITE_SYSTEM, user, 500, 8000, 0);
     return text.split("\n")[0].replace(/["`]/g, "").trim().slice(0, 300);
   } catch {
     return "";
   }
 }
 
-async function cardFor(question: string, chunk: Chunk): Promise<EvidenceCard> {
+async function cardFor(question: string, chunk: Chunk, llm: LlmChoice): Promise<EvidenceCard> {
   const user = `问题：${question}\n\n【1】${chunk.section ? `(${chunk.section}) ` : ""}${chunk.text.slice(0, 900)}`;
   let item: Record<string, unknown> = {};
   try {
-    const raw = extractJson(await chat(SYSTEM, user, 700, 25000)) as Record<string, unknown>[];
+    const raw = extractJson(await chat(llm, SYSTEM, user, 700, 25000)) as Record<string, unknown>[];
     item = raw[0] || {};
   } catch {
     // 单张卡片失败不拖垮整次搜索：只保留本地字段，中文行留空。
@@ -130,8 +100,8 @@ async function cardFor(question: string, chunk: Chunk): Promise<EvidenceCard> {
 }
 
 /** 每个命中片段一次 GLM 调用，并行发出：总耗时约等于最慢的一张卡，而不是五张之和。 */
-export async function writeEvidenceCards(question: string, chunks: Chunk[]): Promise<{ cards: EvidenceCard[]; ms: number; model: string }> {
+export async function writeEvidenceCards(question: string, chunks: Chunk[], llm: LlmChoice = defaultLlm()): Promise<{ cards: EvidenceCard[]; ms: number; model: string }> {
   const startedAt = Date.now();
-  const cards = await Promise.all(chunks.map((chunk) => cardFor(question, chunk)));
-  return { cards, ms: Date.now() - startedAt, model: onlineConfig().model };
+  const cards = await Promise.all(chunks.map((chunk) => cardFor(question, chunk, llm)));
+  return { cards, ms: Date.now() - startedAt, model: llm.model };
 }
