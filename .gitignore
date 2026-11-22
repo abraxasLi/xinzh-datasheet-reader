@@ -24,3 +24,4 @@ models/
 .deepl-key
 
 chroma_db/
+.siliconflow-key*

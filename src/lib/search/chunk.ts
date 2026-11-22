@@ -19,7 +19,7 @@ const SECTION_HEADING = /(?:^|\s)(\d+(?:\.\d+){1,3})\s+([A-Z][A-Za-z0-9 ,()/-]{3
 type Boundary = { index: number; section: string; register: string };
 
 function isContentsPage(text: string) {
-  return /table of contents|list of (?:tables|figures)/i.test(text.slice(0, 600)) || (text.match(/\.{5,}/g) || []).length > 6;
+  return /table of contents|list of (?:tables|figures)/i.test(text.slice(0, 600)) || (text.match(/(?:\.\s?){6,}/g) || []).length > 3;
 }
 
 function pageOf(offsets: number[], index: number) {
@@ -54,7 +54,8 @@ export function chunkDocument(pages: string[], docName: string): Chunk[] {
   pages.forEach((text, index) => {
     offsets.push(full.length);
     skip.push(isContentsPage(text));
-    full += text + "\n";
+    // 目录/索引页只占位不入索引：否则页码点线会被当成正文，还会被并进前一小节。
+    full += (skip[skip.length - 1] ? "" : text) + "\n";
   });
 
   const boundaries: Boundary[] = [];

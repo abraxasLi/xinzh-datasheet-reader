@@ -5,7 +5,7 @@ import { matchGlossary } from "@/lib/glossary";
 import { buildBm25, type Bm25Index } from "./bm25";
 import { chunkDocument, type Chunk } from "./chunk";
 import { collectionNameFor, dropOtherManuals, getChroma } from "./chroma";
-import { embedTexts } from "./embed";
+import { embedTexts, embeddingConfig } from "./embed";
 
 export type IndexStatus = { state: "idle" | "indexing" | "ready" | "error"; done: number; total: number; error: string; reused: boolean };
 type DocIndex = IndexStatus & { chunks: Chunk[]; bm25: Bm25Index | null; collection: string; job: Promise<void> | null };
@@ -16,6 +16,9 @@ const indexes = globalIndex.__xinzhIndex ??= new Map<string, DocIndex>();
 function fingerprint(name: string, pages: string[]) {
   const hash = createHash("sha1");
   hash.update(name);
+  hash.update("chunk-v3"); // 切段规则变了就换索引
+  hash.update(embeddingConfig().model); // 换 embedding 模型必须换索引，别复用别的向量
+  hash.update(process.env.SILICONFLOW_BASE || "");
   hash.update(String(pages.length));
   for (const page of pages) { hash.update(String(page.length)); hash.update(page.slice(0, 120)); }
   return hash.digest("hex").slice(0, 20);
