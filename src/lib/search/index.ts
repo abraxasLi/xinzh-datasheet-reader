@@ -40,8 +40,19 @@ export function ensureIndex(documentId: string, name: string, pages: string[]): 
     try {
       const client = await getChroma();
       await dropOtherManuals(client, item.collection);
-      const collection = await client.getOrCreateCollection({ name: item.collection, embeddingFunction: null, configuration: { hnsw: { space: "cosine" } } });
-      if ((await collection.count()) === chunks.length && chunks.length > 0) {
+      const open = () => client.getOrCreateCollection({ name: item.collection, embeddingFunction: null, configuration: { hnsw: { space: "cosine" } } });
+      let collection = await open();
+      let existing = 0;
+      try {
+        existing = await collection.count();
+        // 取一条向量验证 HNSW 索引能加载（Chroma 被强行结束后索引文件可能损坏）。
+        if (existing > 0) await collection.query({ queryEmbeddings: [new Array(1024).fill(0.01)], nResults: 1 });
+      } catch {
+        await client.deleteCollection({ name: item.collection }).catch(() => undefined);
+        collection = await open();
+        existing = 0;
+      }
+      if (existing === chunks.length && chunks.length > 0) {
         item.done = chunks.length; item.reused = true; item.state = "ready";
         return;
       }
@@ -76,7 +87,7 @@ function queryTerms(question: string) {
 
 const RRF_K = 60;
 
-export async function hybridSearch(documentId: string, question: string, queryEmbedding: number[], limit = 5): Promise<{ hits: Hit[]; keywordHits: number; semanticHits: number }> {
+export async function hybridSearch(documentId: string, question: string, queryEmbedding: number[], limit = 5, userQuestion = question): Promise<{ hits: Hit[]; keywordHits: number; semanticHits: number }> {
   const item = indexes.get(documentId);
   if (!item || item.state !== "ready" || !item.bm25) throw new Error("索引还没准备好。");
   const keyword = item.bm25.search(queryTerms(question), 20);
@@ -102,15 +113,31 @@ export async function hybridSearch(documentId: string, question: string, queryEm
     fused.get(id)!.distance = distances[rank] ?? null;
   });
   // 用户写出了完整的寄存器名：寄存器定义段排在泛提及之前。
-  const named = new Set((question.match(/[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+/g) || []).map((token) => token.toLowerCase()));
+  // 只认用户自己写的名字；改写出来的"可能的寄存器名"只是猜测，不能拿来加权。
+  const named = new Set((userQuestion.match(/[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+/g) || []).map((token) => token.toLowerCase()));
   for (const hit of fused.values()) if (hit.chunk.register && named.has(hit.chunk.register.toLowerCase())) hit.score += 0.05;
   // 同一个寄存器/小节被切成多段时只留最相关的一段，别让一个寄存器占满 5 个名额。
   const seen = new Set<string>();
-  const hits = [...fused.values()].sort((a, b) => b.score - a.score).filter((hit) => {
+  const ranked = [...fused.values()].sort((a, b) => b.score - a.score).filter((hit) => {
     const key = `${hit.chunk.register || hit.chunk.section}|${hit.chunk.page}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, limit);
+  });
+  // 顺着引用补定义：前几段正文反复提到某个寄存器（如 "write 0xCCCC in the Key register (IWDG_KR)"），
+  // 而它的定义段只有标题、自己很难被搜到时，把定义段补进来。
+  const definitions = new Map<string, Chunk>();
+  for (const chunk of item.chunks) if (chunk.register && !definitions.has(chunk.register)) definitions.set(chunk.register, chunk);
+  const mentions = new Map<string, number>();
+  for (const hit of ranked.slice(0, 4)) {
+    for (const token of new Set(hit.chunk.text.match(/[A-Z][A-Z0-9]*(?:_[A-Za-z0-9]+)+/g) || [])) {
+      if (definitions.has(token) && hit.chunk.register !== token) mentions.set(token, (mentions.get(token) || 0) + 1);
+    }
+  }
+  const present = new Set(ranked.slice(0, limit).map((hit) => hit.chunk.register).filter(Boolean));
+  const anchor = ranked[Math.min(2, ranked.length - 1)]?.score ?? 0;
+  const referenced = [...mentions.entries()].filter(([register, count]) => count >= 1 && !present.has(register)).sort((a, b) => b[1] - a[1]).slice(0, 2)
+    .map(([register]): Hit => ({ chunk: definitions.get(register)!, score: anchor + 0.0005, via: ["keyword"], distance: null }));
+  const hits = [...ranked.slice(0, limit), ...referenced].sort((a, b) => b.score - a.score).slice(0, limit);
   return { hits, keywordHits: keyword.length, semanticHits: semanticIds.length };
 }
