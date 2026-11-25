@@ -67,7 +67,6 @@ export default function Home() {
   const workspaceRef = useRef<HTMLElement>(null);
   const pdfReaderRef = useRef<PdfReaderHandle>(null);
   const resizeStartRef = useRef<{ y: number; height: number } | null>(null);
-  const translationHoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const translationRequest = useRef(0);
   const documentRevision = useRef(0);
   const [file, setFile] = useState<File | null>(null);
@@ -352,19 +351,15 @@ export default function Home() {
   }
 
   function openTranslationTarget(target: TranslationTarget) {
-    if (!followTranslationEnabled || translationPinned) return;
+    if (!followTranslationEnabled) return;
+    if (translationPinned && translationTarget?.id === target.id) {
+      setTranslationPinned(false);
+      return;
+    }
+    setTranslationPinned(true);
     setTranslationTarget(target);
     setTranslationPreviewOpen(true);
     void translateTarget(target, translationScope);
-  }
-
-  function focusTranslationTarget(target: TranslationTarget) {
-    if (!followTranslationEnabled || translationPinned || window.getSelection()?.type === "Range") return;
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = setTimeout(() => {
-      translationHoverTimer.current = null;
-      openTranslationTarget(target);
-    }, 260);
   }
 
   function toggleFollowTranslation() {
@@ -374,8 +369,6 @@ export default function Home() {
       setTranslationPreviewOpen(true);
       return;
     }
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = null;
     translationRequest.current++;
     setTranslationTarget(null);
     setTranslationPreviewOpen(false);
@@ -434,8 +427,6 @@ export default function Home() {
   }
 
   function clearTranslationSelection() {
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = null;
     translationRequest.current++;
     setFollowTranslationEnabled(false);
     setTranslationTarget(null);
@@ -524,7 +515,7 @@ export default function Home() {
           <summary>怎么使用？</summary>
           <div>
             <p><b>找内容：</b>用中文说出你想找的东西，搜索结果会带你回到手册原文并高亮。</p>
-            <p><b>看翻译：</b>默认拖动选中文字即可翻译；打开工具栏“跟随译读”后，悬停或点击英文段落才会翻译整段。</p>
+            <p><b>看翻译：</b>默认拖动选中文字即可翻译；打开工具栏“跟随译读”后，悬停只显示淡高亮，点击英文段落才锁定并翻译整段。</p>
             <p><b>翻译从哪来：</b>安装一次免费离线英中模型包（约 70 MB）后，整段翻译全部在本机 CPU 上完成，断网可用。</p>
             <small>没有安装模型时，只显示术语提示，不会假装已经翻译。</small>
           </div>
@@ -561,7 +552,7 @@ export default function Home() {
           className={"translation-mode-button" + (followTranslationEnabled ? " enabled" : "")}
           onClick={toggleFollowTranslation}
           aria-pressed={followTranslationEnabled}
-          title={followTranslationEnabled ? "关闭后只保留划词翻译" : "打开后允许悬停/点击整段翻译"}
+          title={followTranslationEnabled ? "关闭后只保留划词翻译" : "打开后悬停只高亮，点击锁定并翻译整段"}
         >
           跟随译读
           <span>{followTranslationEnabled ? "已开启" : "已关闭"}</span>
@@ -595,7 +586,7 @@ export default function Home() {
               onPageCount={updatePdfPageCount}
               onPageChange={setActivePage}
               followTranslationEnabled={followTranslationEnabled}
-              onTarget={focusTranslationTarget}
+              lockedTargetId={translationPinned ? translationTarget?.id ?? null : null}
               onTargetClick={openTranslationTarget}
               onReaderError={setError}
               onPageParagraphs={collectPageParagraphs}
@@ -689,7 +680,7 @@ export default function Home() {
                     {translationProvider === "deepl" ? "在线模型（DeepL）" : translationProvider === "online" ? "在线模型（智谱）" : modelReady ? "本机离线模型" : "未安装离线模型"}
                   </small>
                 </div>
-                {translationPinned && <b className="pinned-badge">已固定</b>}
+                {translationPinned && <b className="pinned-badge">已锁定</b>}
                 <button onClick={() => setTranslationPreviewOpen(false)} aria-label="关闭译读面板">×</button>
               </div>
               <div className="translation-panel-controls">
@@ -710,7 +701,7 @@ export default function Home() {
                   <button className={translationView === "bilingual" ? "selected" : ""} onClick={() => setTranslationView("bilingual")}>中英对照</button>
                   <button className={translationView === "source" ? "selected" : ""} onClick={() => setTranslationView("source")}>原文</button>
                 </div>
-                {translationTarget && <button className="pin-translation" onClick={toggleTranslationPinned}>{translationPinned ? "取消固定" : "固定段落"}</button>}
+                {translationTarget && <button className="pin-translation" onClick={toggleTranslationPinned}>{translationPinned ? "解除锁定" : "锁定段落"}</button>}
               </div>
 
               {translationProvider !== "offline" && (
@@ -808,7 +799,8 @@ export default function Home() {
                 <span>选中片段 · {selectedText.length} 字</span>
                 <button onClick={() => { setSelectedText(""); setSelectionResult(null); }} aria-label="关闭选中翻译">×</button>
               </div>
-              <p className="selection-source">{selectedText.slice(0, 600)}</p>
+              <p className="selection-meta">送翻范围：仅下方选中文字，共 {selectedText.length} 字；不包含前后文或整页。</p>
+              <p className="selection-source">{selectedText}</p>
               <div className="selection-actions">
                 <button onClick={() => void translateSelection()} disabled={selectionResult?.busy}>
                   {selectionResult?.busy ? "翻译中…" : `翻译选中（${translationProvider === "offline" ? "本机" : translationProvider === "deepl" ? "DeepL" : "智谱"}）`}
