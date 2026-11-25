@@ -1,0 +1,12 @@
+node_modules
+.next
+.next-*
+.next-app
+dist
+.runtime
+.wheels
+.tmp
+.samples
+models
+.vercel*
+*.log

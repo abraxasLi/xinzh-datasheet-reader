@@ -48,6 +48,12 @@ node node_modules\next\dist\bin\next dev --hostname 127.0.0.1 --port 3010
 
 打开 http://127.0.0.1:3010 。
 
+### Vercel 预览
+
+将 GitHub 仓库导入 Vercel 时选择 **Next.js**，构建命令使用 `npm run build`。连接 GitHub 后，Pull Request 会自动生成独立的 Vercel 预览链接，适合验收界面和本地检索流程。
+
+预览环境可配置以下 Vercel 环境变量来启用在线引擎：`ZHIPU_API_KEY`、`DEEPL_API_KEY`。不要把 key 写入代码或提交到仓库。预览版没有 Windows 本机 Python/CTranslate2 运行时，也不会安装离线模型；因此预览版只验界面、PDF 上传、搜索和在线翻译，离线翻译仍在本地验收。
+
 ### 安装离线模型（约 70 MB）
 
 1. 下载 `translate-en_zh-1_9.argosmodel`：
