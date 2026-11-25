@@ -128,7 +128,17 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .translation-preview-panel .translation-panel-controls button{width:auto;height:auto;min-height:27px}
 .translation-preview-panel .translation-panel-controls{flex-wrap:wrap;overflow-x:visible}
 .translation-local-result{margin:0;color:#35483a;font:13px/2 'Noto Sans SC',sans-serif;white-space:pre-wrap;overflow-wrap:anywhere}
-.translation-source{margin:0;padding:10px 11px;border-left:2px solid #9ab59d;background:#f7faf7;color:#465449;font:11px/1.75 'DM Mono','Noto Sans SC',sans-serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.translation-source{margin:0;padding:10px 11px;border-left:2px solid #9ab59d;background:#f7faf7;color:#465449;font:12px/1.7 Arial,'Helvetica Neue','Noto Sans SC',sans-serif;white-space:pre-wrap;overflow-wrap:break-word}
+/* 中英对照（当前段）：一句中文在上、对应原文在下；原文保留 PDF 里的换行，用接近 PDF 正文的无衬线字体，不用等宽字体挤在一起。 */
+.bilingual-pairs{margin:0;padding:0;list-style:none;white-space:normal}
+.bilingual-pair{padding:9px 0 10px;border-bottom:1px solid #eef1ec}
+.bilingual-pair:last-child{border-bottom:0}
+.bilingual-pair.heading .bilingual-target{font-weight:700}
+.bilingual-pair.heading .bilingual-source{font-weight:700}
+.bilingual-pair.bullet{padding-left:12px}
+.bilingual-target{margin:0 0 5px;color:#2f4034;font:13px/1.85 'Noto Sans SC',sans-serif;white-space:pre-wrap}
+.bilingual-source{margin:0;padding-left:9px;border-left:2px solid #d5e2d6;color:#5d6a60;font:12px/1.65 Arial,'Helvetica Neue',sans-serif;white-space:pre-wrap;overflow-wrap:break-word}
+.bilingual-muted{color:#9aa39b;font-size:11px}
 .translation-pending{margin:10px 0 0;padding:10px 11px;border:1px solid #efe5cb;border-radius:6px;background:#fffcf4;color:#866d42;font:10px/1.7 'Noto Sans SC',sans-serif}
 .translation-empty{margin:0;padding:20px 16px;color:#7f8c81;font:11px/1.8 'Noto Sans SC',sans-serif}
 .translation-boundary{padding:9px 14px;border-top:1px solid #edf0eb;background:#fbfcfa;color:#829085;font:9px/1.6 'Noto Sans SC',sans-serif}
