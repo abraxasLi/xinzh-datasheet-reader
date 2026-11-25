@@ -9,7 +9,7 @@
 ## 产品边界
 
 - 面向不懂英文的嵌入式初学者，只做两件事：中文搜索并在 PDF 原文定位高亮；原文跟随式上下文翻译。
-- 不做通用聊天机器人，不把 PDF 发云端问答，不做 Acrobat 插件。
+- 不做通用聊天机器人，不把 PDF 文件发云端问答，不做 Acrobat 插件。（可选的语义搜索会发送手册文字片段，规则见下。）
 - 最终目标是双击可运行的 Windows 阅读器；网页只是开发验收形态。
 - RM0008 是 Reference Manual，不是具体型号 Datasheet；不得用外设配置推断封装引脚或电气参数。
 
@@ -22,15 +22,28 @@
 - 寄存器名、位名、地址、数值和单位必须在送入模型前做占位保护，译后还原；未还原的占位符要显示出来，不能静默吞掉。
 - 离线模型许可只核到包内 README（原始 OPUS 模型 CC-BY 4.0）；分发前必须单独核对模型与训练数据条款。在线服务的使用条款由用户账号承担。
 
+## 搜索规则
+
+- 搜索框旁的「精确搜索」开关**默认开启**：只按字找（`/api/ask` 原有规则），不联网、不猜、不写中文证据。
+- **语义搜索默认关闭**。只有用户主动把「精确搜索」关掉，才会：建索引时把整本手册的文字片段发到硅基流动（api.siliconflow.cn，BGE-M3 embedding）；每次搜索把问题和命中的 5 段发到硅基流动与智谱（open.bigmodel.cn，查询改写 + 证据卡）。PDF 文件本身和文件名不上传。界面在该模式下必须常驻提示发送对象。
+- 语义搜索的 key 只从本机 `.siliconflow-key`（也认 `.siliconflow-key.txt`）/ `SILICONFLOW_API_KEY` 和 `.zhipu-key` / `ZHIPU_API_KEY` 读取，规则同在线翻译：不进前端、不进安装包、不进日志。
+- 向量库是本机 Chroma，数据在 `./chroma_db`，一本手册一个 collection，换手册即删旧建新。
+- **不得针对样本手册写死寄存器名、页码或答案**；排序、切段、查询改写都必须是通用规则，换一本手册重建索引就能搜。RM0008 只当验收样本，判分标准只能写在 `tools/` 的验收脚本里，不进 `src/`。
+- `XINZH_SEARCH_DEBUG=1` 时接口会多返回改写词与命中明细，并允许按请求切换大模型（仅用于横向对比）；默认不开。
+
 ## 已知技术与环境坑
 
 - **Next.js 的 fork/IPC 会被受限环境拦截**（`spawn EPERM`）：用 `node node_modules\next\dist\bin\next dev` 启动；`npm run dev` 会失败。构建同理，需要时可临时放开权限。
 - **CTranslate2 / SentencePiece 打不开非 ASCII 绝对路径**：翻译服务先 `chdir` 到模型父目录，再传相对路径。
 - 模型下载走境外源很慢，用 `tools\pget.mjs` 多连接分段下载（约 250–300 KiB/s）。
 - 沙箱里 `pip install` 会因临时目录权限失败；运行时用 `tools\setup-runtime.ps1` 解包 wheel 到 `.runtime/`。
+- Chroma 装在 `.runtime/chroma`（`pip install chromadb --target .runtime/chroma -i https://pypi.org/simple`；清华镜像没有 chromadb）。由 Node 按需拉起本机 Chroma 服务（随机端口，只听 127.0.0.1）。
+- Chroma 进程被强行结束后 HNSW 索引可能损坏（报 `Error loading hnsw index`）；建索引时会先验证，坏了自动删掉该 collection 重建。
+- 本机内存紧张时 Claude Code 会结束后台的开发服务，结束后需要手动重新启动。
+- 用脚本改 TS 源码时注意 Python 字符串里的 `\b` 会变成退格字符，曾导致正则静默失效；改完用 `grep -P '\x08'` 自查。
 
 ## 交付与记录
 
 - 每轮改动都要留可复核的证据：`outputs/` 下的验收记录、`outputs/screenshots/` 下的浏览器截图、命令与实际数值。
-- 不提交密钥、用户 PDF、模型权重；`.gitignore` 已排除 `.runtime/`、`models/`、`.samples/`、`.wheels/`、`.tmp/`。
+- 不提交密钥、用户 PDF、模型权重；`.gitignore` 已排除 `.runtime/`、`models/`、`.samples/`、`.wheels/`、`.tmp/`、`chroma_db/`、`.zhipu-key`、`.deepl-key`、`.siliconflow-key*`。
 - 未真实验收的能力（EXE、表格翻译、跨手册泛化）必须标为未完成。
