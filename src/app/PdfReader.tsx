@@ -3,6 +3,7 @@
 import "pdfjs-dist/web/pdf_viewer.css";
 import { RefObject, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { buildLines, detectContinuation, detectTables, type ParsedTable, type Span } from "@/lib/datasheet/tables";
+import { beginCellDrag, markTableCells, updateCellDrag, type CellDrag } from "@/lib/datasheet/cellSelection";
 
 export type TranslationTarget = {
   id: string;
@@ -75,6 +76,8 @@ function groupTextLayer(container: HTMLDivElement, page: number): TranslationTar
   }
   lines.sort((a, b) => a.top - b.top);
   for (const line of lines) line.parts.sort((a, b) => a.left - b.left);
+  // 表格行里的每一块文字标成“格子”，划词时每个格子单独算一个单位（见 cellSelection.ts）。
+  markTableCells(lines);
 
   const paragraphs: { lines: typeof lines; bottom: number; fontSize: number }[] = [];
   for (const line of lines) {
@@ -369,6 +372,18 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       if (text.length >= 2 && text.length <= 2000) onSelectionTextRef.current?.(text);
     };
     container?.addEventListener("mouseup", handleMouseUp);
+    // 表格里的划词：按在格子上就由 cellSelection 接管这次拖选，选区只在这一格里（不跨格子、不跨行）。
+    let cellDrag: CellDrag | null = null;
+    const handleCellMouseDown = (event: MouseEvent) => { cellDrag = beginCellDrag(event); };
+    const handleCellMouseMove = (event: MouseEvent) => {
+      if (!cellDrag) return;
+      if ((event.buttons & 1) === 0) { cellDrag = null; return; }
+      updateCellDrag(cellDrag, event);
+    };
+    const endCellDrag = () => { cellDrag = null; };
+    container?.addEventListener("mousedown", handleCellMouseDown);
+    window.addEventListener("mousemove", handleCellMouseMove);
+    window.addEventListener("mouseup", endCellDrag);
     container?.addEventListener("pointerover", handlePointerOver);
     container?.addEventListener("pointerout", handlePointerOut);
     container?.addEventListener("pointerdown", handlePointerDown);
@@ -388,6 +403,9 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       clearTargetFrame();
       container?.classList.remove("translation-selecting");
       container?.removeEventListener("mouseup", handleMouseUp);
+      container?.removeEventListener("mousedown", handleCellMouseDown);
+      window.removeEventListener("mousemove", handleCellMouseMove);
+      window.removeEventListener("mouseup", endCellDrag);
       container?.removeEventListener("pointerover", handlePointerOver);
       container?.removeEventListener("pointerout", handlePointerOut);
       container?.removeEventListener("pointerdown", handlePointerDown);
