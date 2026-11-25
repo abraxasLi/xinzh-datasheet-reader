@@ -92,6 +92,19 @@ function occurrences(text: string, term: string) {
   return (text.match(new RegExp(escaped, "gi")) || []).length;
 }
 
+/** 取命中词所在的原文句子，避免每条结果都回退到同一段固定提示。 */
+function matchingSentence(text: string, term: string) {
+  const position = text.toLocaleLowerCase().indexOf(term.toLocaleLowerCase());
+  if (position < 0) return text.slice(0, 260).trim();
+  const before = text.slice(0, position);
+  const after = text.slice(position);
+  const startBoundary = Math.max(before.lastIndexOf("."), before.lastIndexOf("!"), before.lastIndexOf("?"), before.lastIndexOf("。"), before.lastIndexOf("！"), before.lastIndexOf("？"), before.lastIndexOf("\n"));
+  const endMatches = [...after.matchAll(/[.!?。！？](?:\s|$)/g)];
+  const endBoundary = endMatches[0] ? position + endMatches[0].index! + 1 : Math.min(text.length, position + 260);
+  const sentence = text.slice(startBoundary + 1, endBoundary).replace(/\s+/g, " ").trim();
+  return sentence.length >= term.length ? sentence.slice(0, 320) : text.slice(Math.max(0, position - 100), position + 220).replace(/\s+/g, " ").trim();
+}
+
 export function searchPages(pages: string[], question: string, kind: string, fileName: string): { evidence: EvidenceChunk[]; glossary: ReturnType<typeof matchGlossary>; answerHint: string } {
   const glossary = matchGlossary(question);
   if (isOverviewQuestion(question)) {
@@ -137,10 +150,15 @@ export function searchPages(pages: string[], question: string, kind: string, fil
     const position = lower.indexOf(exactTerm);
     const start = Math.max(0, position - 210);
     const end = Math.min(text.length, position + 540);
-    const translation = glossary[0]?.chinese || "请在当前阅读面板使用本地词典规则译读，并核对英文原文。";
-    return { score: cueScore - frontMatterPenalty, chunk: { quote_en: text.slice(start, end).trim(), page: index + 1, section: sectionForTerm(text, exactTerm), translation_zh: translation, highlight_term: exactTerm || "" } };
+    const summary = matchingSentence(text, exactTerm || terms[0] || "");
+    return { score: cueScore - frontMatterPenalty, chunk: { quote_en: text.slice(start, end).trim(), page: index + 1, section: sectionForTerm(text, exactTerm), translation_zh: summary, highlight_term: exactTerm || "" } };
   }).filter((item): item is NonNullable<typeof item> => item !== null).sort((a, b) => b.score - a.score);
-  const ranked = results.filter((result) => result.score > 0).slice(0, 8).map((result) => result.chunk);
+  const ranked = results.filter((result) => result.score > 0).slice(0, 8).map((result, index, chunks) => {
+    const duplicate = chunks.slice(0, index).some((previous) => previous.chunk.translation_zh === result.chunk.translation_zh);
+    return duplicate
+      ? { ...result.chunk, translation_zh: `${result.chunk.translation_zh} · 第 ${result.chunk.page} 页` }
+      : result.chunk;
+  });
   const isPinQuestion = /引脚|管脚|脚位|pinout/i.test(question);
   const isFlashProgrammingQuestion = /(?:flash|闪存).{0,14}(?:解锁|密钥|键|编程|擦除)|(?:解锁|密钥|键|编程|擦除).{0,14}(?:flash|闪存)/i.test(question);
   const isNvicPriorityQuestion = /(?:nvic|中断).{0,12}优先级|优先级.{0,12}(?:nvic|中断)/i.test(question);
