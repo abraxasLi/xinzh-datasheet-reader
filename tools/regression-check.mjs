@@ -102,17 +102,15 @@ if (!target) {
 
 // 3. PDF 里划词
 const selectSpan = await pickSpan(12, 'select');
-const selected = await page.evaluate(() => {
-  const span = document.querySelector('[data-regression="select"]');
-  if (!span) return '';
-  const range = document.createRange();
-  range.selectNodeContents(span);
-  const selection = window.getSelection();
-  selection.removeAllRanges();
-  selection.addRange(range);
-  span.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-  return selection.toString().replace(/\s+/g, ' ').trim();
-});
+// 真实的鼠标拖选：按下 → 拖过这一行大半 → 抬起（划词要求按住后拖动超过 5 像素，代码模拟的选区不算）。
+const selectBox = selectSpan ? await page.evaluate(() => { const r = document.querySelector('[data-regression="select"]').getBoundingClientRect(); return { left: r.left, right: r.right, y: r.top + r.height / 2 }; }) : null;
+if (selectBox) {
+  await page.mouse.move(selectBox.left + 2, selectBox.y);
+  await page.mouse.down();
+  await page.mouse.move(selectBox.right - 2, selectBox.y, { steps: 12 });
+  await page.mouse.up();
+}
+const selected = await page.evaluate(() => window.getSelection().toString().replace(/\s+/g, ' ').trim());
 const selectionDone = await page.waitForSelector('.selection-result', { timeout: 60000 }).then(() => true).catch(() => false);
 const selectionSource = (await page.locator('.selection-source').innerText().catch(() => '')).trim();
 const selectionText = (await page.locator('.selection-result').innerText().catch(() => '')).trim();

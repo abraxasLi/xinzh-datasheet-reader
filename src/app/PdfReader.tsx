@@ -268,7 +268,8 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       if (!element) return undefined;
       return targetMap.get(element.dataset.translationParagraph || "");
     };
-    let pointerDown: { x: number; y: number; id: number } | null = null;
+    // dragged：这次按下之后鼠标离开按下位置的最大距离（像素），用来区分“点一下”和“真的拖出一段字”。
+    let pointerDown: { x: number; y: number; id: number; dragged: number } | null = null;
     let suppressClick = false;
     let hoveredTarget: TranslationTarget | undefined;
     const clearTargetFrame = () => {
@@ -329,13 +330,16 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
     };
     const handlePointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
-      pointerDown = { x: event.clientX, y: event.clientY, id: event.pointerId };
+      pointerDown = { x: event.clientX, y: event.clientY, id: event.pointerId, dragged: 0 };
       suppressClick = false;
       container?.classList.add("translation-selecting");
       clearTargetFrame();
     };
     const handlePointerMove = (event: PointerEvent) => {
-      if (pointerDown && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 4) suppressClick = true;
+      if (!pointerDown) return;
+      const distance = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+      pointerDown.dragged = Math.max(pointerDown.dragged, distance);
+      if (distance > 4) suppressClick = true;
     };
     const finishPointer = () => {
       pointerDown = null;
@@ -357,6 +361,9 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       redrawActiveFrame();
     };
     const handleMouseUp = () => {
+      // 只有真正拖出一段字才算划词：这一下按住后至少拖动了 5 像素。
+      // 点一下、手抖 1–2 像素、双击（浏览器会自动选中整个单词）都不触发，点一下只锁定跟随译文。
+      if (!pointerDown || pointerDown.dragged <= 5) return;
       const selection = window.getSelection();
       const text = selection?.toString().replace(/\s+/g, " ").trim() || "";
       if (text.length >= 2 && text.length <= 2000) onSelectionTextRef.current?.(text);
