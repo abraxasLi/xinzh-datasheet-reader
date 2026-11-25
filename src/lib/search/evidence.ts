@@ -1,6 +1,6 @@
 // 让大模型现场把最像的几段写成中文证据卡。不训练、不写死题集。
 // 发送内容：用户的问题 + 命中的手册片段；不发送 PDF 文件本身、文件名。
-import { chatOnce, defaultLlm, type LlmChoice } from "./llm";
+import { chatOnce, defaultLlm, type Effort, type LlmChoice } from "./llm";
 import type { Chunk } from "./chunk";
 
 export type EvidenceCard = {
@@ -12,6 +12,7 @@ export type EvidenceCard = {
   page: number;
   section: string;
   register: string;
+  checked?: string[];  // 精确搜：核对寄存器名和页码时做过的修改（空数组 = 核对通过、无需修改）
 };
 
 const SYSTEM = [
@@ -47,8 +48,8 @@ export function fallbackSentence(text: string, term: string) {
   return flat.slice(start, end).trim().slice(0, 320);
 }
 
-function chat(llm: LlmChoice, system: string, user: string, maxTokens: number, timeoutMs: number, temperature = 0.1) {
-  return chatOnce(llm, system, user, maxTokens, timeoutMs, temperature);
+function chat(llm: LlmChoice, system: string, user: string, maxTokens: number, timeoutMs: number, temperature = 0.1, effort: Effort = "low") {
+  return chatOnce(llm, system, user, maxTokens, timeoutMs, temperature, effort);
 }
 
 const REWRITE_SYSTEM = [
@@ -63,10 +64,10 @@ const REWRITE_SYSTEM = [
 ].join("\n");
 
 /** 中文问题 → 英文检索词，让 BM25 能认英文术语，向量也有英文锚点。失败时返回空串（退回原问题）。 */
-export async function rewriteQuery(question: string, outline: string[] = [], llm: LlmChoice = defaultLlm()): Promise<string> {
+export async function rewriteQuery(question: string, outline: string[] = [], llm: LlmChoice = defaultLlm(), temperature = 0, effort: Effort = "low"): Promise<string> {
   try {
     const user = outline.length ? `本手册的章节/外设名词表：${outline.join("；")}\n\n问题：${question}` : `问题：${question}`;
-    const text = await chat(llm, REWRITE_SYSTEM, user, 500, 8000, 0);
+    const text = await chat(llm, REWRITE_SYSTEM, user, effort === "high" ? 2000 : 500, effort === "high" ? 20000 : 8000, temperature, effort);
     return text.split("\n")[0].replace(/["`]/g, "").trim().slice(0, 300);
   } catch {
     return "";
@@ -97,6 +98,100 @@ async function cardFor(question: string, chunk: Chunk, llm: LlmChoice): Promise<
     section: chunk.section,
     register: chunk.register,
   };
+}
+
+const RERANK_SYSTEM = [
+  "你是嵌入式芯片手册的检索排序器。用户给出一个中文问题和若干编号的英文手册片段。",
+  "请判断哪些片段最能**直接**回答这个问题，按相关度从高到低输出编号。",
+  "排序原则（通用，不针对某本手册）：",
+  "先判断问题类型，再排序：",
+  "A. 名词/功能类（如“××是什么”“××对应哪个寄存器”或只有一个功能名词）：标了【寄存器定义】、且这个寄存器正是实现该功能的那一段排第一；其次是该功能的说明段。",
+  "B. 操作类（“怎么开/启用/配置/清除××”）：写明具体操作（写什么值、置哪个位、按什么顺序）的段落排第一；其次是被操作的那个寄存器的【寄存器定义】。",
+  "C. 数值类（“最高/最大/最小/范围/多少”）：写着具体数值和单位、且数值说的正是问题所问对象的段落排第一。",
+  "通用规则：只是顺带提到该对象的段落、其它外设的段落、目录、寄存器总表、修订历史一律靠后；片段前标注的【寄存器定义：XXX】表示这一段就是 XXX 的定义页。",
+  '只输出 JSON：{"order":[编号,...]}，最多 5 个编号，不要任何其它文字。',
+].join("\n");
+
+/** 精确搜第二步：让模型带推理把候选段重新排一次序，取最能直接回答问题的 5 段。失败时保持原顺序。 */
+export async function rerankChunks(question: string, chunks: Chunk[], llm: LlmChoice = defaultLlm(), limit = 5): Promise<{ chunks: Chunk[]; reranked: boolean }> {
+  if (chunks.length <= 1) return { chunks: chunks.slice(0, limit), reranked: false };
+  const user = `问题：${question}\n\n` + chunks.map((chunk, index) => `【${index + 1}】第 ${chunk.page} 页${chunk.register ? `【寄存器定义：${chunk.register}】` : ""} ${chunk.section ? `(${chunk.section}) ` : ""}${chunk.text.slice(0, 600)}`).join("\n\n");
+  try {
+    const text = await chat(llm, RERANK_SYSTEM, user, 3000, 25000, 0, "high");
+    const match = text.match(/\{[\s\S]*\}/);
+    const order = ((match ? JSON.parse(match[0]) : {}).order || []) as unknown[];
+    const picked: Chunk[] = [];
+    for (const value of order) {
+      const chunk = chunks[Number(value) - 1];
+      if (chunk && !picked.includes(chunk)) picked.push(chunk);
+      if (picked.length >= limit) break;
+    }
+    if (!picked.length) return { chunks: chunks.slice(0, limit), reranked: false };
+    // 模型给的不足 limit 个时，用原顺序补齐。
+    for (const chunk of chunks) { if (picked.length >= limit) break; if (!picked.includes(chunk)) picked.push(chunk); }
+    return { chunks: picked, reranked: true };
+  } catch {
+    return { chunks: chunks.slice(0, limit), reranked: false };
+  }
+}
+
+const IDENTIFIER = /\b[A-Z][A-Z0-9]*(?:_[A-Za-z0-9]+)+(?:\[\d+(?::\d+)?\])?/g;
+
+/**
+ * 精确搜第三步：逐张卡片核对寄存器名和页码（确定性规则，不靠模型）。
+ * - 标题里的寄存器名必须真的出现在该段原文里（或就是该段定义的寄存器），否则换成该段自己的寄存器名 / 小节名；
+ * - 原文关键词必须真的出现在该段原文里，否则换成英文原句里的标识符或该段寄存器名；
+ * - 页码、章节一律取自该段本身，不用模型说的；
+ * - 标题是寄存器 X、但这一段只是“提到” X 而不是 X 的定义页：X 的定义段也在结果里，就把定义段排到它前面；
+ *   不在结果里，就在卡片上注明 X 的定义在第几页。
+ * 返回每张卡片改了什么，界面据此显示“已核对”。
+ */
+export function verifyCards(cards: EvidenceCard[], chunks: Chunk[], definitionPageOf: (register: string) => number | undefined = () => undefined): EvidenceCard[] {
+  const checkedCards = cards.map((card, index) => {
+    const chunk = chunks[index];
+    if (!chunk) return { card, mentionOnly: "" };
+    const source = chunk.text.toLowerCase();
+    const fixes: string[] = [];
+    let title = card.title;
+    for (const name of title.match(IDENTIFIER) || []) {
+      const bare = name.replace(/\[.*$/, "");
+      if (source.includes(bare.toLowerCase()) || bare === chunk.register) continue;
+      const replacement = chunk.register || "";
+      title = replacement ? title.replace(name, replacement) : title.replace(name, "").replace(/^\s*·\s*/, "");
+      fixes.push(`标题里的 ${bare} 不在该段原文中，已改为 ${replacement || "小节主题"}`);
+    }
+    let keyword = card.keyword;
+    // 关键词就是这一段定义的寄存器时直接算通过：长寄存器定义会被切成几段，后面几段正文里不一定再出现它的名字。
+    if (keyword && keyword !== chunk.register && !source.includes(keyword.toLowerCase())) {
+      const fromSentence = card.sentence_en.match(IDENTIFIER)?.[0];
+      const next = fromSentence || chunk.register || "";
+      fixes.push(`关键词 ${keyword} 不在该段原文中，已改为 ${next || "（无）"}`);
+      keyword = next;
+    }
+    if (card.page !== chunk.page) fixes.push(`页码已按原文改为第 ${chunk.page} 页`);
+    // 标题点名的寄存器（取第一个）不是这一段定义的那个：记下它的定义页，后面用来调整顺序。
+    const titled = (title.match(IDENTIFIER) || [])[0]?.replace(/\[.*$/, "") || "";
+    const mentionOnly = titled && titled !== chunk.register ? titled : "";
+    return { card: { ...card, title: title.trim() || chunk.register || chunk.section || "相关原文", keyword, page: chunk.page, section: chunk.section, register: chunk.register, checked: fixes }, mentionOnly };
+  });
+
+  // 第二遍：处理"只是提到、不是定义页"的卡片。
+  const ordered = checkedCards.map((entry) => entry.card);
+  for (const { card, mentionOnly } of checkedCards) {
+    if (!mentionOnly) continue;
+    const definitionPage = definitionPageOf(mentionOnly);
+    if (!definitionPage || definitionPage === card.page) continue;
+    const from = ordered.indexOf(card);
+    const definitionAt = ordered.findIndex((other) => other.register === mentionOnly);
+    if (definitionAt > from) {
+      const [definition] = ordered.splice(definitionAt, 1);
+      ordered.splice(from, 0, definition);
+      definition.checked = [...(definition.checked || []), `这是 ${mentionOnly} 的定义页，已排到只提到它的第 ${card.page} 页之前`];
+    } else if (definitionAt < 0) {
+      card.checked = [...(card.checked || []), `这一段只是提到 ${mentionOnly}，它的定义在第 ${definitionPage} 页`];
+    }
+  }
+  return ordered;
 }
 
 /** 每个命中片段一次 GLM 调用，并行发出：总耗时约等于最慢的一张卡，而不是五张之和。 */

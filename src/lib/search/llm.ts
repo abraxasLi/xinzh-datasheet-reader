@@ -31,14 +31,19 @@ export function llmHost(choice: LlmChoice = defaultLlm()) {
 }
 
 /** 调一次对话模型，返回文本。非思考模型直接答；思考模型尽量关闭或降到 low，保证 2–4 秒。 */
-export async function chatOnce(choice: LlmChoice, system: string, user: string, maxTokens: number, timeoutMs: number, temperature: number): Promise<string> {
+/** effort：low = 快速搜（尽量少想）；high = 精确搜（让模型多想一步）。 */
+export type Effort = "low" | "high";
+
+export async function chatOnce(choice: LlmChoice, system: string, user: string, maxTokens: number, timeoutMs: number, temperature: number, effort: Effort = "low"): Promise<string> {
   const zhipu = choice.provider === "zhipu";
   const key = zhipu ? readKeyFile([".zhipu-key", ".zhipu-key.txt"], "ZHIPU_API_KEY") : readKeyFile([".siliconflow-key", ".siliconflow-key.txt"], "SILICONFLOW_API_KEY");
   if (!key) throw new Error(zhipu ? "未配置智谱 API key（.zhipu-key 或 ZHIPU_API_KEY）。" : "未配置硅基流动 API key（.siliconflow-key 或 SILICONFLOW_API_KEY）。");
   const base = zhipu ? onlineConfig().base : (process.env.SILICONFLOW_BASE || "https://api.siliconflow.cn/v1");
   const attempts: Record<string, unknown>[] = zhipu
-    ? [{ reasoning_effort: "low" }, {}]            // glm-5.3 不能关思考；老的 flash 档不认这个字段
-    : [{ enable_thinking: false }, { reasoning_effort: "low" }, {}];
+    ? [{ reasoning_effort: effort }, {}]           // glm-5.3 不能关思考，只能调深浅；老的 flash 档不认这个字段
+    : effort === "low"
+      ? [{ enable_thinking: false }, { reasoning_effort: "low" }, {}]
+      : [{ enable_thinking: true }, { reasoning_effort: "high" }, {}];
   let lastError = "";
   for (const extra of attempts) {
     const response = await fetch(`${base}/chat/completions`, {
