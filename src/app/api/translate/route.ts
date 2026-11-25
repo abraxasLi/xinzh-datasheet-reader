@@ -98,11 +98,29 @@ function assemble(
   });
 }
 
+type Timing = { glmMs: number; deeplMs: number; provider: string };
+
 export async function POST(request: Request) {
+  const started = performance.now();
+  const timing: Timing = { glmMs: 0, deeplMs: 0, provider: "unknown" };
+  const label = request.headers.get("x-xinzh-timing-id");
+  const id = label && /^[a-zA-Z0-9_-]{1,64}$/.test(label) ? label : crypto.randomUUID();
+  let status = 500;
+  try {
+    const response = await translateRequest(request, timing);
+    status = response.status;
+    return response;
+  } finally {
+    console.info("[translation-timing]", JSON.stringify({ id, provider: timing.provider, status, totalMs: Math.round(performance.now() - started), glmMs: timing.glmMs, deeplMs: timing.deeplMs }));
+  }
+}
+
+async function translateRequest(request: Request, timing: Timing) {
   const body = (await request.json().catch(() => null)) as RequestBody | null;
   const texts = (body?.texts || []).map((text) => String(text || "").trim()).filter(Boolean).slice(0, 24);
   const requested = body?.provider;
   const provider = requested === "online" || requested === "deepl" ? requested : "offline";
+  timing.provider = provider;
   if (!texts.length) {
     return NextResponse.json({ ok: false, code: "empty", error: "没有要翻译的段落。" }, { status: 400 });
   }
@@ -131,7 +149,10 @@ export async function POST(request: Request) {
     try {
       const masks = targets.map(({ item }) => maskFor(item.text));
       const payload = masks.map((mask, index) => decapitalizeForModel(mask.use ? mask.text : targets[index].item.text));
-      const result = await translateWithDeepL(payload);
+      const engineStarted = performance.now();
+      const result = await translateWithDeepL(payload).finally(() => {
+        timing.deeplMs = Math.round(performance.now() - engineStarted);
+      });
       return NextResponse.json({
         ok: true,
         provider: "deepl",
@@ -160,7 +181,10 @@ export async function POST(request: Request) {
     try {
       const masks = targets.map(({ item }) => maskFor(item.text));
       const payload = masks.map((mask, index) => decapitalizeForModel(mask.use ? mask.text : targets[index].item.text));
-      const result = await translateOnline(payload);
+      const engineStarted = performance.now();
+      const result = await translateOnline(payload).finally(() => {
+        timing.glmMs = Math.round(performance.now() - engineStarted);
+      });
       return NextResponse.json({
         ok: true,
         provider: "online",
