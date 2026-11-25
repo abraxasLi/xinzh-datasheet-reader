@@ -1,5 +1,5 @@
 // 语义搜索 UI 验收（Playwright + 本机 Edge）：
-// 打开 PDF → 关闭"精确搜索" → 等索引 → 搜索 → 截图 → 点"跳到这一页"。
+// 打开 PDF → 等索引（打开手册即自动建）→ 默认搜 → 截图 → 点"跳到这一页"。精确搜和旧功能回归见 tools/regression-check.mjs。
 // 用法: node tools/semantic-check.mjs [baseUrl] [query]
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,7 +21,6 @@ await page.locator('input[type=file][accept*="pdf"]').setInputFiles(path.join(RO
 await page.waitForFunction(() => /页/.test(document.querySelector('.document-label small')?.textContent || ''), null, { timeout: 60000 });
 
 console.log('精确搜索开关默认：', (await page.locator('button:has-text("精确搜索")').innerText()).replace(/\s+/g, ' '));
-await page.locator('button:has-text("精确搜索")').click();
 await page.waitForSelector('.semantic-notice:has-text("索引已就绪")', { timeout: 300000 });
 console.log('提示：', await page.locator('.semantic-notice').first().innerText());
 

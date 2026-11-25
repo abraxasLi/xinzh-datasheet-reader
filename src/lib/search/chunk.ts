@@ -51,7 +51,7 @@ export function chunkDocument(pages: string[], docName: string): Chunk[] {
   const offsets: number[] = [];
   const skip: boolean[] = [];
   let full = "";
-  pages.forEach((text, index) => {
+  pages.forEach((text) => {
     offsets.push(full.length);
     skip.push(isContentsPage(text));
     // 目录/索引页只占位不入索引：否则页码点线会被当成正文，还会被并进前一小节。
@@ -77,11 +77,26 @@ export function chunkDocument(pages: string[], docName: string): Chunk[] {
   const chunks: Chunk[] = [];
   let currentSection = "";
   let pending: { page: number; section: string; register: string; text: string } | null = null;
+  // 长小节会跨好几页再被切成几段：每一段要按它自己开头那句话去找实际所在页，不能都记成小节起始页。
+  // （否则卡片写“第 N 页”，跳过去却找不到那句话。）
+  const normalizedPages = pages.map((text) => text.replace(/\s+/g, " "));
+  const actualPage = (part: string, fromPage: number) => {
+    for (const length of [60, 30]) {
+      const opening = part.slice(0, length);
+      if (opening.length < 12) break;
+      for (let page = fromPage; page <= Math.min(pages.length, fromPage + 12); page += 1) {
+        if (normalizedPages[page - 1].includes(opening)) return page;
+      }
+    }
+    return fromPage;
+  };
   const flush = () => {
     if (!pending) return;
+    let page = pending.page;
     for (const part of splitLong(pending.text)) {
+      page = actualPage(part, page);
       if (part.length < 20) continue;
-      chunks.push({ id: `c${chunks.length}`, doc: docName, page: pending.page, section: pending.section, register: pending.register, text: part });
+      chunks.push({ id: `c${chunks.length}`, doc: docName, page, section: pending.section, register: pending.register, text: part });
     }
     pending = null;
   };

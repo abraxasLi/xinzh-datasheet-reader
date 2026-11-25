@@ -316,8 +316,9 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .pdf-viewer-container.translation-selecting .textLayer .translation-active{background:transparent}
 
 /* 语义搜索证据卡 */
-.semantic-notice{margin:0;padding:6px 14px;background:#fff7e6;color:#8a6a2a;font:10px/1.6 'Noto Sans SC',sans-serif}
-.semantic-notice.error{background:#fdecea;color:#a33a2f}
+/* 联网提示必须常驻可见：浮在阅读区底部正中、叠在 PDF 之上（放在顶部会被 PDF 视图盖住）。 */
+.semantic-notice{position:absolute;left:50%;bottom:10px;z-index:8;transform:translateX(-50%);width:max-content;max-width:min(720px,58%);margin:0;padding:6px 12px;border:1px solid #f0dfb8;border-radius:6px;background:#fff7e6;color:#8a6a2a;box-shadow:0 4px 14px #25372a14;font:10px/1.6 'Noto Sans SC',sans-serif}
+.semantic-notice.error{bottom:58px;border-color:#f3c7c1;background:#fdecea;color:#a33a2f}
 .semantic-card{margin-top:14px;padding:12px 12px 10px;border:1px solid #e7ebe5;border-radius:8px;background:#fff}
 .semantic-card.top{border-color:#7fae88;box-shadow:0 0 0 2px #e4f1e6}
 .semantic-card h3{margin:0;color:#1f3a28;font:700 15px/1.4 'Noto Sans SC',sans-serif}
@@ -328,3 +329,4 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .semantic-card .card-locate b{font:700 11px 'DM Mono',monospace;color:#2a4a34}
 .semantic-card .card-locate button{overflow:hidden;max-width:70%;padding:3px 7px;border:1px solid #d6e3d8;border-radius:10px;background:#f3f8f4;color:#38664a;font:9px 'Noto Sans SC',sans-serif;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 .semantic-card .card-en{margin:6px 0 8px;color:#8b958c;font:9px/1.6 'DM Mono',monospace}
+.semantic-card .card-checked{margin:0 0 8px;color:#4f7d5a;font:9px/1.5 'Noto Sans SC',sans-serif}
