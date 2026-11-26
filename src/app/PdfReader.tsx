@@ -24,7 +24,7 @@ type Props = {
   onPageCount: (count: number) => void;
   onPageChange: (page: number) => void;
   followTranslationEnabled: boolean;
-  onTarget: (target: TranslationTarget) => void;
+  lockedTargetId: string | null;
   onTargetClick: (target: TranslationTarget) => void;
   onReaderError: (message: string) => void;
   onPageParagraphs?: (page: number, paragraphs: string[]) => void;
@@ -119,7 +119,7 @@ function groupTextLayer(container: HTMLDivElement, page: number): TranslationTar
   }));
 }
 
-export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError, onPageParagraphs, onPageTables, onSelectionText }: Props) {
+export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onPageChange, followTranslationEnabled, lockedTargetId, onTargetClick, onReaderError, onPageParagraphs, onPageTables, onSelectionText }: Props) {
   const [outline, setOutline] = useState<DisplayOutlineItem[]>([]);
   const [outlineOpen, setOutlineOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -129,7 +129,8 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
   const activeTargetRef = useRef<TranslationTarget | null>(null);
   const pendingSearchRef = useRef<{ page: number; term: string } | null>(null);
   const applySearchHighlightRef = useRef<() => void>(() => {});
-  const callbackRef = useRef({ onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError });
+  const callbackRef = useRef({ onPageCount, onPageChange, followTranslationEnabled, lockedTargetId, onTargetClick, onReaderError });
+  const syncHighlightRef = useRef<() => void>(() => {});
   const onPageParagraphsRef = useRef(onPageParagraphs);
   const onPageTablesRef = useRef(onPageTables);
   const lastTableRef = useRef<{ page: number; table: ParsedTable } | null>(null);
@@ -144,8 +145,9 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
   useEffect(() => { pageNumberRef.current = pageNumber; }, [pageNumber]);
 
   useEffect(() => {
-    callbackRef.current = { onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError };
-  }, [onPageCount, onPageChange, followTranslationEnabled, onTarget, onTargetClick, onReaderError]);
+    callbackRef.current = { onPageCount, onPageChange, followTranslationEnabled, lockedTargetId, onTargetClick, onReaderError };
+    syncHighlightRef.current();
+  }, [onPageCount, onPageChange, followTranslationEnabled, lockedTargetId, onTargetClick, onReaderError]);
 
   useImperativeHandle(readerRef, () => ({
     goToPage: (page, highlightTerm) => {
@@ -222,6 +224,7 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
             onPageTablesRef.current?.(event.pageNumber, []);
           }
           applySearchHighlightRef.current();
+          syncHighlightRef.current();
         };
         eventBus.on("pagesinit", onPagesInit as (event: never) => void);
         eventBus.on("pagechanging", onPageChanging as (event: never) => void);
@@ -265,6 +268,14 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       if (!element) return undefined;
       return targetMap.get(element.dataset.translationParagraph || "");
     };
+    let pointerDown: { x: number; y: number; id: number } | null = null;
+    let suppressClick = false;
+    let hoveredTarget: TranslationTarget | undefined;
+    const clearTargetFrame = () => {
+      activeTargetRef.current = null;
+      container?.querySelectorAll(".translation-active").forEach((element) => element.classList.remove("translation-active"));
+      container?.querySelector(".translation-paragraph-frame")?.remove();
+    };
     const drawTargetFrame = (target: TranslationTarget) => {
       if (!container) return;
       activeTargetRef.current = target;
@@ -272,7 +283,7 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       const escapedId = CSS.escape(target.id);
       const spans = Array.from(container.querySelectorAll<HTMLElement>(`[data-translation-paragraph="${escapedId}"]`));
       spans.forEach((element) => element.classList.add("translation-active"));
-      if (!spans.length) return;
+      if (!spans.length) { clearTargetFrame(); return; }
       const bounds = spans.map((element) => element.getBoundingClientRect());
       const containerBounds = container.getBoundingClientRect();
       const frame = container.querySelector<HTMLDivElement>(".translation-paragraph-frame") || document.createElement("div");
@@ -299,23 +310,51 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
       matches[0].scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
     };
     applySearchHighlightRef.current = applyPendingSearchHighlight;
-    const redrawActiveFrame = () => { if (activeTargetRef.current) drawTargetFrame(activeTargetRef.current); };
+    const redrawActiveFrame = () => {
+      const { followTranslationEnabled, lockedTargetId } = callbackRef.current;
+      if (!followTranslationEnabled || pointerDown) { clearTargetFrame(); return; }
+      const target = lockedTargetId ? targetMap.get(lockedTargetId) : hoveredTarget;
+      if (target) drawTargetFrame(target);
+      else clearTargetFrame();
+    };
+    syncHighlightRef.current = redrawActiveFrame;
     const handlePointerOver = (event: PointerEvent) => {
-      const target = lookupTarget(event);
-      if (target) {
-        drawTargetFrame(target);
-        if (callbackRef.current.followTranslationEnabled) callbackRef.current.onTarget(target);
-      }
+      hoveredTarget = lookupTarget(event);
+      redrawActiveFrame();
+    };
+    const handlePointerOut = (event: PointerEvent) => {
+      const next = event.relatedTarget instanceof Element ? event.relatedTarget.closest<HTMLElement>("[data-translation-paragraph]") : null;
+      hoveredTarget = next ? targetMap.get(next.dataset.translationParagraph || "") : undefined;
+      redrawActiveFrame();
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return;
+      pointerDown = { x: event.clientX, y: event.clientY, id: event.pointerId };
+      suppressClick = false;
+      container?.classList.add("translation-selecting");
+      clearTargetFrame();
+    };
+    const handlePointerMove = (event: PointerEvent) => {
+      if (pointerDown && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 4) suppressClick = true;
+    };
+    const finishPointer = () => {
+      pointerDown = null;
+      container?.classList.remove("translation-selecting");
+      redrawActiveFrame();
+    };
+    const handlePointerCancel = () => {
+      suppressClick = true;
+      finishPointer();
     };
     const handleClick = (event: MouseEvent) => {
       const target = lookupTarget(event);
-      if (target && callbackRef.current.followTranslationEnabled && window.getSelection()?.type !== "Range") {
+      if (target && !pointerDown && !suppressClick && callbackRef.current.followTranslationEnabled && window.getSelection()?.type !== "Range") {
         callbackRef.current.onTargetClick(target);
       }
     };
     const handleFocus = (event: FocusEvent) => {
-      const target = lookupTarget(event);
-      if (target) drawTargetFrame(target);
+      hoveredTarget = lookupTarget(event);
+      redrawActiveFrame();
     };
     const handleMouseUp = () => {
       const selection = window.getSelection();
@@ -324,6 +363,12 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
     };
     container?.addEventListener("mouseup", handleMouseUp);
     container?.addEventListener("pointerover", handlePointerOver);
+    container?.addEventListener("pointerout", handlePointerOut);
+    container?.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("mouseup", finishPointer);
+    window.addEventListener("pointercancel", handlePointerCancel);
+    window.addEventListener("blur", handlePointerCancel);
     container?.addEventListener("click", handleClick);
     container?.addEventListener("focusin", handleFocus);
     container?.addEventListener("scroll", redrawActiveFrame, true);
@@ -332,8 +377,17 @@ export default function PdfReader({ src, pageNumber, readerRef, onPageCount, onP
     return () => {
       cancelled = true;
       applySearchHighlightRef.current = () => {};
+      syncHighlightRef.current = () => {};
+      clearTargetFrame();
+      container?.classList.remove("translation-selecting");
       container?.removeEventListener("mouseup", handleMouseUp);
       container?.removeEventListener("pointerover", handlePointerOver);
+      container?.removeEventListener("pointerout", handlePointerOut);
+      container?.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("mouseup", finishPointer);
+      window.removeEventListener("pointercancel", handlePointerCancel);
+      window.removeEventListener("blur", handlePointerCancel);
       container?.removeEventListener("click", handleClick);
       container?.removeEventListener("focusin", handleFocus);
       container?.removeEventListener("scroll", redrawActiveFrame, true);

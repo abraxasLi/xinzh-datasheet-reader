@@ -12,6 +12,7 @@
     "dist:exe": "powershell -ExecutionPolicy Bypass -File tools/build-exe.ps1"
   },
   "dependencies": {
+    "chromadb": "^3.5.0",
     "next": "^15.5.6",
     "pdfjs-dist": "^5.4.394",
     "react": "^19.1.1",
@@ -53,7 +54,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "artifactName": "芯知-${version}-安装包.${ext}"

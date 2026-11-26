@@ -17,6 +17,15 @@ type SearchAnswer = {
   glossary?: { term: string; english: string; chinese: string }[];
 };
 
+type EvidenceCard = { title: string; what: string; quote_zh: string; keyword: string; sentence_en: string; page: number; section: string; register: string; checked?: string[] };
+type SemanticResult = { cards: EvidenceCard[]; approximate: boolean; ms: number; mode: "fast" | "precise" };
+type SemanticIndex = { state: "idle" | "indexing" | "ready" | "error"; done: number; total: number; error: string; reused: boolean };
+const IDLE_INDEX: SemanticIndex = { state: "idle", done: 0, total: 0, error: "", reused: false };
+
+function boldMarks(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <b key={index}>{part.slice(2, -2)}</b> : part);
+}
+
 type ModelInfo = {
   installed: boolean;
   manifest?: {
@@ -67,7 +76,6 @@ export default function Home() {
   const workspaceRef = useRef<HTMLElement>(null);
   const pdfReaderRef = useRef<PdfReaderHandle>(null);
   const resizeStartRef = useRef<{ y: number; height: number } | null>(null);
-  const translationHoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const translationRequest = useRef(0);
   const documentRevision = useRef(0);
   const [file, setFile] = useState<File | null>(null);
@@ -80,6 +88,11 @@ export default function Home() {
   const [searching, setSearching] = useState(false);
   const [searchAnswer, setSearchAnswer] = useState<SearchAnswer | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // 两种搜索都联网、都由大模型判断：默认快速搜（2–4 秒）；打开「精确搜索」让模型多想一步（5–10 秒）。
+  const [preciseMode, setPreciseMode] = useState(false);
+  const [semanticIndex, setSemanticIndex] = useState<SemanticIndex>(IDLE_INDEX);
+  const [semanticResult, setSemanticResult] = useState<SemanticResult | null>(null);
+  const [semanticError, setSemanticError] = useState("");
   const [followTranslationEnabled, setFollowTranslationEnabled] = useState(false);
   const [translationPreviewOpen, setTranslationPreviewOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState<TranslationTarget | null>(null);
@@ -193,6 +206,8 @@ export default function Home() {
     setDocumentId(null);
     setDocumentInfo(null);
     setSearchAnswer(null);
+    setSemanticResult(null);
+    setSemanticIndex(IDLE_INDEX);
     setSearchOpen(false);
     setUploading(true);
 
@@ -206,6 +221,7 @@ export default function Home() {
       setDocumentId(result.documentId);
       setDocumentInfo({ pageCount: result.pageCount, kind: result.kind });
       searchRef.current?.focus();
+      void startIndexing(result.documentId, revision);
     } catch (cause) {
       if (revision !== documentRevision.current) return;
       setError(cause instanceof Error ? cause.message : "读取失败。PDF 仍可在左侧打开阅读。");
@@ -262,7 +278,31 @@ export default function Home() {
     setError("");
     setSearching(true);
     setSearchAnswer(null);
+    setSemanticResult(null);
     setSearchOpen(true);
+    const mode = preciseMode ? "precise" : "fast";
+    // 快速搜在在线索引还没建好 / 建不了时，先退回本地按字找，避免刚打开手册时搜不了；精确搜不退回。
+    const onlineReady = semanticIndex.state === "ready";
+    if (onlineReady || preciseMode) {
+      try {
+        if (!onlineReady) throw new Error(semanticIndex.state === "error" ? `在线搜索索引不可用：${semanticIndex.error}` : "搜索索引还在建立，请稍等几秒再用精确搜索。");
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ documentId, question: value.trim(), mode }),
+        });
+        const result = await response.json();
+        if (revision !== documentRevision.current) return;
+        if (!response.ok) throw new Error(result.error || "搜索失败，请重试。");
+        setSemanticResult({ cards: result.cards, approximate: result.approximate, ms: result.ms, mode });
+      } catch (cause) {
+        if (revision !== documentRevision.current) return;
+        setError(cause instanceof Error ? cause.message : "搜索失败，请重试。");
+      } finally {
+        if (revision === documentRevision.current) setSearching(false);
+      }
+      return;
+    }
     try {
       const response = await fetch("/api/ask", {
         method: "POST",
@@ -280,6 +320,49 @@ export default function Home() {
     } finally {
       if (revision === documentRevision.current) setSearching(false);
     }
+  }
+
+  async function startIndexing(id: string, revision: number) {
+    setSemanticError("");
+    try {
+      const response = await fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ documentId: id, action: "index" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "无法建立搜索索引。");
+      if (revision !== documentRevision.current) return;
+      setSemanticIndex(result.index);
+      while (revision === documentRevision.current) {
+        const poll = await (await fetch(`/api/search?documentId=${id}`)).json();
+        if (revision !== documentRevision.current) return;
+        setSemanticIndex(poll.index);
+        if (poll.index.state === "ready") break;
+        if (poll.index.state === "error") throw new Error(poll.index.error || "建立搜索索引失败。");
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    } catch (cause) {
+      if (revision !== documentRevision.current) return;
+      setSemanticIndex({ ...IDLE_INDEX, state: "error", error: cause instanceof Error ? cause.message : "无法建立搜索索引。" });
+      setSemanticError(`${cause instanceof Error ? cause.message : "无法建立搜索索引。"} 暂时只能用本地按字找。`);
+    }
+  }
+
+  // 搜索结果面板里划词也能翻译（任务 2 的功能，两种结果面板共用）。
+  function translateResultsSelection() {
+    const selection = window.getSelection();
+    if (!selection?.anchorNode || !selection.focusNode) return;
+    if (!resultsRef.current?.contains(selection.anchorNode) || !resultsRef.current.contains(selection.focusNode)) return;
+    const text = selection.toString().replace(/\s+/g, " ").trim();
+    if (text.length < 2 || text.length > 2000) return;
+    setSelectedText(text);
+    setSelectionResult(null);
+    void translateSelection(text);
+  }
+
+  function goToCard(card: EvidenceCard) {
+    const bounded = Math.max(1, Math.min(card.page, documentInfo?.pageCount || 1));
+    setActivePage(bounded);
+    pdfReaderRef.current?.goToPage(bounded, card.keyword || card.register);
+    setSearchOpen(false);
+    searchRef.current?.focus({ preventScroll: true });
   }
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -352,19 +435,15 @@ export default function Home() {
   }
 
   function openTranslationTarget(target: TranslationTarget) {
-    if (!followTranslationEnabled || translationPinned) return;
+    if (!followTranslationEnabled) return;
+    if (translationPinned && translationTarget?.id === target.id) {
+      setTranslationPinned(false);
+      return;
+    }
+    setTranslationPinned(true);
     setTranslationTarget(target);
     setTranslationPreviewOpen(true);
     void translateTarget(target, translationScope);
-  }
-
-  function focusTranslationTarget(target: TranslationTarget) {
-    if (!followTranslationEnabled || translationPinned || window.getSelection()?.type === "Range") return;
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = setTimeout(() => {
-      translationHoverTimer.current = null;
-      openTranslationTarget(target);
-    }, 260);
   }
 
   function toggleFollowTranslation() {
@@ -374,8 +453,6 @@ export default function Home() {
       setTranslationPreviewOpen(true);
       return;
     }
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = null;
     translationRequest.current++;
     setTranslationTarget(null);
     setTranslationPreviewOpen(false);
@@ -434,8 +511,6 @@ export default function Home() {
   }
 
   function clearTranslationSelection() {
-    if (translationHoverTimer.current) clearTimeout(translationHoverTimer.current);
-    translationHoverTimer.current = null;
     translationRequest.current++;
     setFollowTranslationEnabled(false);
     setTranslationTarget(null);
@@ -456,6 +531,8 @@ export default function Home() {
     setActivePage(1);
     setQuery("");
     setSearchAnswer(null);
+    setSemanticResult(null);
+    setSemanticIndex(IDLE_INDEX);
     setSearchOpen(false);
     clearTranslationSelection();
     setError("");
@@ -524,7 +601,7 @@ export default function Home() {
           <summary>怎么使用？</summary>
           <div>
             <p><b>找内容：</b>用中文说出你想找的东西，搜索结果会带你回到手册原文并高亮。</p>
-            <p><b>看翻译：</b>默认拖动选中文字即可翻译；打开工具栏“跟随译读”后，悬停或点击英文段落才会翻译整段。</p>
+            <p><b>看翻译：</b>默认拖动选中文字即可翻译；打开工具栏“跟随译读”后，悬停只显示淡高亮，点击英文段落才锁定并翻译整段。</p>
             <p><b>翻译从哪来：</b>安装一次免费离线英中模型包（约 70 MB）后，整段翻译全部在本机 CPU 上完成，断网可用。</p>
             <small>没有安装模型时，只显示术语提示，不会假装已经翻译。</small>
           </div>
@@ -555,13 +632,23 @@ export default function Home() {
             disabled={!documentId}
           />
           <kbd>Ctrl K</kbd>
-          <button type="submit" disabled={!documentId || !query.trim() || searching}>{searching ? "查找中…" : "搜索"}</button>
+          <button type="submit" disabled={!documentId || !query.trim() || searching}>{searching ? (preciseMode ? "正在仔细想…" : "正在找…") : "搜索"}</button>
         </form>
+        <button
+          className={"translation-mode-button" + (preciseMode ? " enabled" : "")}
+          onClick={() => setPreciseMode((value) => !value)}
+          disabled={!documentId}
+          aria-pressed={preciseMode}
+          title={preciseMode ? "关闭后回到快速搜（约 2–4 秒）" : "打开后让模型多想一步：多取几段、再排一次序、核对寄存器名和页码（约 5–10 秒），适合快速搜猜得不准时"}
+        >
+          精确搜索
+          <span>{preciseMode ? "已开启" : "已关闭"}</span>
+        </button>
         <button
           className={"translation-mode-button" + (followTranslationEnabled ? " enabled" : "")}
           onClick={toggleFollowTranslation}
           aria-pressed={followTranslationEnabled}
-          title={followTranslationEnabled ? "关闭后只保留划词翻译" : "打开后允许悬停/点击整段翻译"}
+          title={followTranslationEnabled ? "关闭后只保留划词翻译" : "打开后悬停只高亮，点击锁定并翻译整段"}
         >
           跟随译读
           <span>{followTranslationEnabled ? "已开启" : "已关闭"}</span>
@@ -595,7 +682,7 @@ export default function Home() {
               onPageCount={updatePdfPageCount}
               onPageChange={setActivePage}
               followTranslationEnabled={followTranslationEnabled}
-              onTarget={focusTranslationTarget}
+              lockedTargetId={translationPinned ? translationTarget?.id ?? null : null}
               onTargetClick={openTranslationTarget}
               onReaderError={setError}
               onPageParagraphs={collectPageParagraphs}
@@ -637,6 +724,58 @@ export default function Home() {
             </div>
           )}
 
+          {documentId && (
+            <p className="semantic-notice" role="status">
+              搜索会联网：打开手册时把全书文字发到硅基流动（embedding）建索引；每次搜索把你的问题和命中的手册片段发到硅基流动和智谱（GLM）。PDF 文件本身和文件名不会上传。
+              {semanticIndex.state === "indexing" && ` 正在建立搜索索引 ${semanticIndex.done}/${semanticIndex.total}…（建好前先用本地按字找）`}
+              {semanticIndex.state === "ready" && (semanticIndex.reused ? " 索引已就绪（复用本机缓存）。" : " 索引已就绪。")}
+            </p>
+          )}
+          {semanticError && <p className="semantic-notice error" role="alert">{semanticError}</p>}
+
+          {searchOpen && !searchAnswer && (searching || semanticResult) && (
+            <aside
+              ref={resultsRef}
+              className="search-results-panel semantic-panel"
+              aria-live="polite"
+              aria-label="中文搜索结果面板"
+              style={selectedText ? { top: 16, bottom: "52%", maxHeight: "none" } : undefined}
+              onMouseUp={translateResultsSelection}
+            >
+              <div className="results-heading">
+                <div><small>{(semanticResult?.mode ?? (preciseMode ? "precise" : "fast")) === "precise" ? "精确搜索 · 多想了一步" : "中文搜索 · 在线"}</small><strong>{query}</strong></div>
+                <button onClick={() => setSearchOpen(false)} aria-label="关闭搜索结果">×</button>
+              </div>
+              {searching && <div className="no-results">{preciseMode ? "正在仔细想…" : "正在找…"}</div>}
+              {semanticResult && (
+                <>
+                  {semanticResult.approximate && <p className="results-summary">没找到完全一样的，先给你最接近的这条</p>}
+                  {!semanticResult.cards.length && <div className="no-results">没有找到相关原文。可以打开“精确搜索”让它多想一步，或换个说法。</div>}
+                  <div className="result-list">
+                    {semanticResult.cards.map((card, index) => (
+                      <article className={"semantic-card" + (index === 0 ? " top" : "")} key={card.page + "-" + index}>
+                        <h3>{card.title}</h3>
+                        {card.what && <p className="card-what">{card.what}</p>}
+                        {card.quote_zh && <p className="card-quote">{boldMarks(card.quote_zh)}</p>}
+                        <div className="card-locate">
+                          <b>{card.keyword}</b>
+                          <button onClick={() => goToCard(card)} title="跳到这一页">第 {card.page} 页{card.section ? ` · ${card.section}` : ""}</button>
+                        </div>
+                        <p className="card-en">{card.sentence_en}</p>
+                        {card.checked && (
+                          <p className="card-checked" title={card.checked.join("\n")}>
+                            {card.checked.length ? `已核对寄存器名和页码 · ${card.checked.join("；")}` : "已核对寄存器名和页码"}
+                          </p>
+                        )}
+                        <button className="jump-button" onClick={() => goToCard(card)}>跳到这一页 →</button>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+            </aside>
+          )}
+
           {searchOpen && searchAnswer && (
             <aside
               ref={resultsRef}
@@ -645,19 +784,10 @@ export default function Home() {
               aria-label="中文搜索结果面板"
               onKeyDown={handleResultKeys}
               style={selectedText ? { top: 16, bottom: "52%", maxHeight: "none" } : undefined}
-              onMouseUp={() => {
-                const selection = window.getSelection();
-                if (!selection?.anchorNode || !selection.focusNode) return;
-                if (!resultsRef.current?.contains(selection.anchorNode) || !resultsRef.current.contains(selection.focusNode)) return;
-                const text = selection.toString().replace(/\s+/g, " ").trim();
-                if (text.length < 2 || text.length > 2000) return;
-                setSelectedText(text);
-                setSelectionResult(null);
-                void translateSelection(text);
-              }}
+              onMouseUp={translateResultsSelection}
             >
               <div className="results-heading">
-                <div><small>中文搜索结果 · 仅搜索</small><strong>{query}</strong></div>
+                <div><small>在线索引未就绪 · 本地按字找</small><strong>{query}</strong></div>
                 <button onClick={() => setSearchOpen(false)} aria-label="关闭搜索结果">×</button>
               </div>
               <p className="results-summary">{searchAnswer.answer_zh}</p>
@@ -689,7 +819,7 @@ export default function Home() {
                     {translationProvider === "deepl" ? "在线模型（DeepL）" : translationProvider === "online" ? "在线模型（智谱）" : modelReady ? "本机离线模型" : "未安装离线模型"}
                   </small>
                 </div>
-                {translationPinned && <b className="pinned-badge">已固定</b>}
+                {translationPinned && <b className="pinned-badge">已锁定</b>}
                 <button onClick={() => setTranslationPreviewOpen(false)} aria-label="关闭译读面板">×</button>
               </div>
               <div className="translation-panel-controls">
@@ -710,7 +840,7 @@ export default function Home() {
                   <button className={translationView === "bilingual" ? "selected" : ""} onClick={() => setTranslationView("bilingual")}>中英对照</button>
                   <button className={translationView === "source" ? "selected" : ""} onClick={() => setTranslationView("source")}>原文</button>
                 </div>
-                {translationTarget && <button className="pin-translation" onClick={toggleTranslationPinned}>{translationPinned ? "取消固定" : "固定段落"}</button>}
+                {translationTarget && <button className="pin-translation" onClick={toggleTranslationPinned}>{translationPinned ? "解除锁定" : "锁定段落"}</button>}
               </div>
 
               {translationProvider !== "offline" && (
@@ -802,13 +932,14 @@ export default function Home() {
             <aside
               className="selection-panel"
               aria-label="选中片段翻译"
-              style={searchOpen && searchAnswer ? { top: "52%", bottom: 58, maxHeight: "none", overflow: "auto" } : undefined}
+              style={searchOpen && (searchAnswer || semanticResult) ? { top: "52%", bottom: 58, maxHeight: "none", overflow: "auto" } : undefined}
             >
               <div className="selection-heading">
                 <span>选中片段 · {selectedText.length} 字</span>
                 <button onClick={() => { setSelectedText(""); setSelectionResult(null); }} aria-label="关闭选中翻译">×</button>
               </div>
-              <p className="selection-source">{selectedText.slice(0, 600)}</p>
+              <p className="selection-meta">送翻范围：仅下方选中文字，共 {selectedText.length} 字；不包含前后文或整页。</p>
+              <p className="selection-source">{selectedText}</p>
               <div className="selection-actions">
                 <button onClick={() => void translateSelection()} disabled={selectionResult?.busy}>
                   {selectionResult?.busy ? "翻译中…" : `翻译选中（${translationProvider === "offline" ? "本机" : translationProvider === "deepl" ? "DeepL" : "智谱"}）`}
@@ -930,7 +1061,7 @@ export default function Home() {
       </div>
 
       <footer className="reader-footer">
-        <span>{documentId ? "搜索与翻译都在本机完成 · PDF 不上传" : "基础搜索在本机完成"}</span>
+        <span>{documentId ? "搜索联网：问题和命中片段会发到云端 · PDF 不上传 · 翻译默认在本机" : "打开手册后，搜索会联网"}</span>
         <span>Enter 搜索 · ↑↓ 选结果 · Enter 定位 · Esc 关闭结果</span>
       </footer>
     </main>

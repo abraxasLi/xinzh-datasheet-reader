@@ -103,9 +103,9 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .pdf-outline-panel>p{margin:14px;color:#89948b;font:10px/1.7 'Noto Sans SC',sans-serif}
 .pdf-viewer-container .textLayer .pdf-translation-target{cursor:text}
 .pdf-viewer-container .textLayer .pdf-translation-target:focus-visible{outline:2px solid #4c8c61;outline-offset:1px;border-radius:2px}
-.pdf-viewer-container .textLayer .pdf-translation-target.translation-active{background:rgba(255,213,82,.44);border-radius:2px}
+.pdf-viewer-container .textLayer .pdf-translation-target.translation-active{background:transparent;border-radius:2px}
 .pdf-viewer-container .textLayer .pdf-search-highlight{background:rgba(239,160,57,.62)!important;outline:2px solid #c56d16;border-radius:2px;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
-.pdf-viewer-container .translation-paragraph-frame{position:absolute;z-index:3;pointer-events:none;border:2px solid #d29323;border-radius:5px;background:rgba(255,243,199,.08);box-shadow:0 0 0 2px rgba(255,255,255,.72);}
+.pdf-viewer-container .translation-paragraph-frame{position:absolute;z-index:3;pointer-events:none;border:0;border-left:2px solid #91aaba;border-radius:0;background:rgba(115,155,180,.045);}
 .search-results-panel{z-index:7;top:14px;left:14px;right:auto;width:min(360px,calc(100% - 28px));max-height:calc(100% - 28px);border-color:#cfe1d2}
 .search-results-panel .results-heading{background:#f1f8f2;border-bottom-color:#dcebdd}
 .translation-preview-panel{z-index:6;top:14px;right:14px;bottom:58px;left:auto;width:clamp(330px,40%,560px);max-height:none;display:flex;flex-direction:column;padding:0;border-color:#d4ddea;background:#fcfdff}
@@ -311,3 +311,22 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .reader-stage.has-follow .selection-panel{left:8px;right:auto;width:calc(50% - 20px);min-width:0}
 .reader-stage.has-search .translation-preview-panel,
 .reader-stage.has-selection .translation-preview-panel{left:auto;right:8px;top:14px;bottom:58px;width:calc(50% - 20px);min-width:0;min-height:0;max-height:none}
+
+.pdf-viewer-container.translation-selecting .translation-paragraph-frame{display:none}
+.pdf-viewer-container.translation-selecting .textLayer .translation-active{background:transparent}
+
+/* 语义搜索证据卡 */
+/* 联网提示必须常驻可见：浮在阅读区底部正中、叠在 PDF 之上（放在顶部会被 PDF 视图盖住）。 */
+.semantic-notice{position:absolute;left:50%;bottom:10px;z-index:8;transform:translateX(-50%);width:max-content;max-width:min(720px,58%);margin:0;padding:6px 12px;border:1px solid #f0dfb8;border-radius:6px;background:#fff7e6;color:#8a6a2a;box-shadow:0 4px 14px #25372a14;font:10px/1.6 'Noto Sans SC',sans-serif}
+.semantic-notice.error{bottom:58px;border-color:#f3c7c1;background:#fdecea;color:#a33a2f}
+.semantic-card{margin-top:14px;padding:12px 12px 10px;border:1px solid #e7ebe5;border-radius:8px;background:#fff}
+.semantic-card.top{border-color:#7fae88;box-shadow:0 0 0 2px #e4f1e6}
+.semantic-card h3{margin:0;color:#1f3a28;font:700 15px/1.4 'Noto Sans SC',sans-serif}
+.semantic-card .card-what{margin:6px 0 0;color:#4e5d51;font:11px/1.6 'Noto Sans SC',sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.semantic-card .card-quote{margin:8px 0 0;color:#2f3b32;font:12px/1.7 'Noto Sans SC',sans-serif}
+.semantic-card .card-quote b{background:#fff1b8;font-weight:700}
+.semantic-card .card-locate{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.semantic-card .card-locate b{font:700 11px 'DM Mono',monospace;color:#2a4a34}
+.semantic-card .card-locate button{overflow:hidden;max-width:70%;padding:3px 7px;border:1px solid #d6e3d8;border-radius:10px;background:#f3f8f4;color:#38664a;font:9px 'Noto Sans SC',sans-serif;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.semantic-card .card-en{margin:6px 0 8px;color:#8b958c;font:9px/1.6 'DM Mono',monospace}
+.semantic-card .card-checked{margin:0 0 8px;color:#4f7d5a;font:9px/1.5 'Noto Sans SC',sans-serif}
