@@ -5,7 +5,7 @@ import { protectText, restoreText, leftoverPlaceholders, correctOutput } from "@
 import { onlineConfig, translateOnline } from "@/lib/translation/online";
 import { deeplConfig, translateWithDeepL } from "@/lib/translation/deepl";
 import { sanitizeParagraph, decapitalizeForModel, SKIP_LABEL, type Sanitized } from "@/lib/translation/sanitize";
-import { checkTranslation, QUALITY_LABEL } from "@/lib/translation/quality";
+import { checkTranslation, QUALITY_LABEL, type QualityVerdict } from "@/lib/translation/quality";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,11 +55,17 @@ function restoreOrDegrade(masked: Masked, modelText: string) {
   return { restored, leftovers, survived };
 }
 
+/**
+ * strictQuality：重复/过短这类检查是为本机 OPUS-MT 卡循环设计的，只对离线引擎开启。
+ * 在线引擎（DeepL、智谱）不会卡循环，但型号密集的正常译文（STM32F101xx、STM32F102xx…）
+ * 不同字符占比很低，会被“字符重复度”误判清空；在线引擎只在完全没返回时才算失败。
+ */
 function assemble(
   texts: string[],
   sanitized: Sanitized[],
   translated: { text: string; ms: number; tokens?: number }[],
   masks: Masked[],
+  strictQuality = true,
 ) {
   let cursor = 0;
   return texts.map((source, index): ItemResult => {
@@ -82,7 +88,9 @@ function assemble(
       ? restoreOrDegrade(mask, result.text)
       : { restored: result.text, leftovers: [], survived: true };
     const cleaned = correctOutput(restored);
-    const quality = checkTranslation(source, cleaned);
+    const quality: QualityVerdict = strictQuality
+      ? checkTranslation(source, cleaned)
+      : cleaned.trim() ? { ok: true } : { ok: false, reason: "empty" };
     return {
       source,
       translation: quality.ok ? cleaned : "",
@@ -158,7 +166,7 @@ async function translateRequest(request: Request, timing: Timing) {
         provider: "deepl",
         engine: `DeepL（${config.mode}，在线，已发送当前段落）`,
         totalMs: result.totalMs,
-        items: assemble(texts, sanitized, result.items, masks),
+        items: assemble(texts, sanitized, result.items, masks, false),
       });
     } catch (error) {
       return NextResponse.json({
@@ -190,7 +198,7 @@ async function translateRequest(request: Request, timing: Timing) {
         provider: "online",
         engine: `${online.provider} ${online.model}（在线，已发送当前段落）`,
         totalMs: result.totalMs,
-        items: assemble(texts, sanitized, result.items, masks),
+        items: assemble(texts, sanitized, result.items, masks, false),
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "在线翻译失败。";

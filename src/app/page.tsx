@@ -6,6 +6,7 @@ import TablePanel from "./TablePanel";
 import { translateDatasheetText } from "@/lib/offline-translation";
 import { parseBitfields, parseRegisterHeader, type BitfieldRow } from "@/lib/datasheet/bitfields";
 import type { ParsedTable } from "@/lib/datasheet/tables";
+import { joinTranslations, normalizeGlyphs, segmentParagraph, type Segment } from "@/lib/translation/segments";
 
 type Evidence = { quote_en: string; translation_zh: string; page: number; section: string; highlight_term?: string };
 type SearchAnswer = {
@@ -53,7 +54,7 @@ type TranslationItem = { source: string; translation: string; ms: number; protec
 type TranslationState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; items: TranslationItem[]; totalMs: number; engine?: string }
+  | { status: "ready"; items: TranslationItem[]; totalMs: number; engine?: string; segments?: Segment[] }
   | { status: "missing" }
   | { status: "error"; error: string };
 
@@ -406,11 +407,15 @@ export default function Home() {
   async function translateTarget(target: TranslationTarget, scope: typeof translationScope, provider: typeof translationProvider = translationProvider) {
     const requestId = ++translationRequest.current;
     setTranslationState({ status: "loading" });
-    const texts = scope === "page"
-      ? [target.pageText.slice(0, 2400)]
-      : scope === "context"
-        ? [target.context]
-        : [target.paragraph];
+    // 当前段按句送翻：译回来一句中文对一句原文，中英对照才对得上。前后文 / 当前页仍整块送。
+    const segments = scope === "paragraph" ? segmentParagraph(target.paragraph) : [];
+    const texts = segments.length
+      ? segments.map((segment) => segment.mt)
+      : scope === "page"
+        ? [target.pageText.slice(0, 2400)]
+        : scope === "context"
+          ? [target.context]
+          : [target.paragraph];
     try {
       const response = await fetch("/api/translate", {
         method: "POST",
@@ -427,7 +432,7 @@ export default function Home() {
         }
         throw new Error(result.error || "翻译失败。");
       }
-      setTranslationState({ status: "ready", items: result.items as TranslationItem[], totalMs: result.totalMs, engine: result.engine });
+      setTranslationState({ status: "ready", items: result.items as TranslationItem[], totalMs: result.totalMs, engine: result.engine, segments: segments.length ? segments : undefined });
     } catch (cause) {
       if (requestId !== translationRequest.current) return;
       setTranslationState({ status: "error", error: cause instanceof Error ? cause.message : "翻译失败。" });
@@ -574,6 +579,20 @@ export default function Home() {
 
   const modelReady = Boolean(modelInfo?.installed && modelInfo?.runtime?.ready);
   const translationBusy = translationState.status === "loading";
+  // 当前段切好的句子：翻译返回前就能先把原文按句排好。
+  const currentSegments = useMemo(
+    () => (translationTarget && translationScope === "paragraph" ? segmentParagraph(translationTarget.paragraph) : null),
+    [translationTarget, translationScope],
+  );
+  // 面板里所有提示只说当前引擎，不能选着 DeepL 还提“离线模型”“不联网”。
+  const engineName = translationProvider === "offline" ? "本机模型" : translationProvider === "deepl" ? "DeepL" : "智谱";
+  const loadingText = translationProvider === "offline" ? "本机模型翻译中…（首次要加载模型，约 1 秒）" : `${engineName} 翻译中…`;
+  function qualityFailedText(count: number, reason?: string) {
+    const scope = count > 1 ? `有 ${count} 句` : "这段";
+    return translationProvider === "offline"
+      ? `离线模型${scope}输出不稳定${reason ? `（${reason}）` : ""}，已拦截，避免给你乱码。可以把引擎切到「在线（DeepL）」或「在线（智谱）」重试。`
+      : `${engineName}${scope}没有返回译文，可以重试一次，或换一个引擎。`;
+  }
 
   return (
     <main className={"shell reading-app" + (file ? " has-document" : "") + (focusReading ? " focus-reading" : "")}>
@@ -855,6 +874,59 @@ export default function Home() {
 
               {translationTarget ? (
                 <div className="translation-content">
+                  {currentSegments ? (() => {
+                    // 当前段：一句中文对一句原文。返回前先按句排好原文，返回后按下标一一对上。
+                    const ready = translationState.status === "ready" && translationState.segments ? translationState : null;
+                    const segments = ready?.segments ?? currentSegments;
+                    const items = ready?.items ?? [];
+                    const zhFor = (segment: Segment, index: number) => {
+                      const item = items[index];
+                      if (!item || item.qualityFailed) return "";
+                      if (item.skipped) return segment.mt;
+                      return item.translation;
+                    };
+                    const failed = items.filter((item) => item.qualityFailed);
+                    const protectedCount = items.reduce((sum, item) => sum + (item.protectedCount || 0), 0);
+                    const unresolved = items.reduce((sum, item) => sum + item.unresolved.length, 0);
+                    return (
+                      <>
+                        {translationView === "source" && <p className="translation-source">{normalizeGlyphs(translationTarget.paragraph)}</p>}
+                        {translationView !== "source" && translationBusy && <p className="translation-loading">{loadingText}</p>}
+                        {translationView === "translation" && ready && (
+                          <>
+                            <p className="translation-local-result">{joinTranslations(segments, segments.map(zhFor))}</p>
+                            <p className="translation-meta">
+                              {engineName} · {ready.totalMs} ms · 按 {segments.length} 句翻译
+                              {protectedCount ? ` · 保护 ${protectedCount} 个标识符/数值` : ""}
+                              {unresolved ? ` · ${unresolved} 个占位符未还原` : ""}
+                            </p>
+                          </>
+                        )}
+                        {translationView === "bilingual" && (
+                          <ol className="bilingual-pairs" aria-label="一句中文对一句原文">
+                            {segments.map((segment, index) => {
+                              const item = items[index];
+                              return (
+                                <li className={"bilingual-pair " + segment.kind} key={index}>
+                                  <p className="bilingual-target">
+                                    {!item ? <span className="bilingual-muted">{translationBusy ? "翻译中…" : ""}</span>
+                                      : item.qualityFailed ? <span className="bilingual-muted">这一句没有可用译文</span>
+                                        : item.skipped ? <span className="bilingual-muted">{item.skipLabel || "未翻译"}</span>
+                                          : (segment.kind === "bullet" ? "• " : "") + item.translation}
+                                  </p>
+                                  <p className="bilingual-source">{segment.source}</p>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
+                        {translationView !== "source" && failed.length > 0 && (
+                          <div className="translation-pending">{qualityFailedText(failed.length, failed[0].qualityReason)}</div>
+                        )}
+                      </>
+                    );
+                  })() : (
+                    <>
                   {(translationView === "source" || translationView === "bilingual") && (
                     <p className="translation-source">
                       {translationScope === "page" ? translationTarget.pageText : translationScope === "context" ? translationTarget.context : translationTarget.paragraph}
@@ -863,21 +935,19 @@ export default function Home() {
 
                   {translationView !== "source" && (
                     <>
-                      {translationBusy && <p className="translation-loading">本机模型翻译中…（首次要加载模型，约 1 秒）</p>}
+                      {translationBusy && <p className="translation-loading">{loadingText}</p>}
 
                       {translationState.status === "ready" && translationState.items.map((item, index) => (
                         <div className="translation-block" key={index}>
                           {item.skipped ? (
                             <p className="translation-skip">{item.skipLabel || "已跳过翻译"}（目录/索引页送进模型会产生乱码，阅读器直接挡掉）</p>
                           ) : item.qualityFailed ? (
-                            <div className="translation-pending">
-                              离线模型这段输出不稳定（{item.qualityReason}），已拦截，避免给你乱码。可以切「在线（智谱）」重试，或在 PDF 里选中这一小段用「选中片段」翻译。
-                            </div>
+                            <div className="translation-pending">{qualityFailedText(1, item.qualityReason)}</div>
                           ) : (
                             <>
                               <p className="translation-local-result">{item.translation}</p>
                               <p className="translation-meta">
-                                {translationProvider === "offline" ? "本机模型" : translationProvider === "deepl" ? "DeepL" : "智谱"} · {item.ms} ms
+                                {engineName} · {item.ms} ms
                                 {item.protectionSkipped
                                   ? " · 未保护直译（这段几乎全是型号/编号，占位会破坏句子）"
                                   : ` · 保护 ${item.protectedCount} 个标识符/数值`}
@@ -909,12 +979,28 @@ export default function Home() {
                       )}
                     </>
                   )}
+                    </>
+                  )}
+                  {translationView !== "source" && currentSegments && (
+                    <>
+                      {translationState.status === "missing" && (
+                        <div className="translation-pending">
+                          <b>还没有安装离线英中模型。</b>
+                          <p>现在的译文只能给术语提示，不是整段翻译。点右上角“安装模型”，选择已下载的 <code>.argosmodel</code> 文件即可，之后翻译全部在本机完成。</p>
+                          {dictionaryFallback && <p className="translation-terms">术语辅助：{dictionaryFallback.text}</p>}
+                        </div>
+                      )}
+                      {translationState.status === "error" && <div className="translation-pending">翻译失败：{translationState.error}</div>}
+                    </>
+                  )}
                 </div>
               ) : (
                 <p className="translation-empty">点击英文段落后，这里会显示对应的中文译文。</p>
               )}
               <small className="translation-boundary">
-                PDF 与文字只在本机处理 · 翻译不联网 · 寄存器名/地址/数值先做占位保护
+                {translationProvider === "offline"
+                  ? "翻译在本机完成，不联网 · 寄存器名/地址/数值先做占位保护"
+                  : "寄存器名/地址/数值先做占位保护再发送 · PDF 文件和文件名不上传"}
               </small>
             </aside>
           )}
