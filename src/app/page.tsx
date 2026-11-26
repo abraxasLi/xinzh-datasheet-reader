@@ -581,7 +581,7 @@ export default function Home() {
 
       <section ref={workspaceRef} className="reader-workspace" style={readerHeight ? { height: readerHeight, minHeight: readerHeight } : undefined}>
         <div
-          className={"reader-stage" + (draggingFile ? " drag-over" : "")}
+          className={"reader-stage" + (draggingFile ? " drag-over" : "") + (searchOpen && searchAnswer ? " has-search" : "") + (selectedText ? " has-selection" : "") + (translationPreviewOpen ? " has-follow" : "")}
           onDragEnter={(event) => { event.preventDefault(); setDraggingFile(true); }}
           onDragOver={(event) => event.preventDefault()}
           onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDraggingFile(false); }}
@@ -638,7 +638,24 @@ export default function Home() {
           )}
 
           {searchOpen && searchAnswer && (
-            <aside ref={resultsRef} className="search-results-panel" aria-live="polite" aria-label="中文搜索结果面板" onKeyDown={handleResultKeys}>
+            <aside
+              ref={resultsRef}
+              className="search-results-panel"
+              aria-live="polite"
+              aria-label="中文搜索结果面板"
+              onKeyDown={handleResultKeys}
+              style={selectedText ? { top: 16, bottom: "52%", maxHeight: "none" } : undefined}
+              onMouseUp={() => {
+                const selection = window.getSelection();
+                if (!selection?.anchorNode || !selection.focusNode) return;
+                if (!resultsRef.current?.contains(selection.anchorNode) || !resultsRef.current.contains(selection.focusNode)) return;
+                const text = selection.toString().replace(/\s+/g, " ").trim();
+                if (text.length < 2 || text.length > 2000) return;
+                setSelectedText(text);
+                setSelectionResult(null);
+                void translateSelection(text);
+              }}
+            >
               <div className="results-heading">
                 <div><small>中文搜索结果 · 仅搜索</small><strong>{query}</strong></div>
                 <button onClick={() => setSearchOpen(false)} aria-label="关闭搜索结果">×</button>
@@ -782,7 +799,11 @@ export default function Home() {
           )}
 
           {selectedText && (
-            <aside className="selection-panel" aria-label="选中片段翻译">
+            <aside
+              className="selection-panel"
+              aria-label="选中片段翻译"
+              style={searchOpen && searchAnswer ? { top: "52%", bottom: 58, maxHeight: "none", overflow: "auto" } : undefined}
+            >
               <div className="selection-heading">
                 <span>选中片段 · {selectedText.length} 字</span>
                 <button onClick={() => { setSelectedText(""); setSelectionResult(null); }} aria-label="关闭选中翻译">×</button>

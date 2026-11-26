@@ -305,3 +305,9 @@ body{font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
 .selection-result{margin:0;padding:9px 12px 12px;color:#33473a;font:12px/1.85 'Noto Sans SC',sans-serif;overflow:auto}
 .selection-error{margin:0;padding:0 12px 10px;color:#a75443;font:10px/1.7 'Noto Sans SC',sans-serif}
 .selection-meta{padding:0 12px 9px;color:#94a096;font:9px 'Noto Sans SC',sans-serif}
+
+/* Keep restored follow translation separate from both search and selection results. */
+.reader-stage.has-follow .search-results-panel,
+.reader-stage.has-follow .selection-panel{left:8px;right:auto;width:calc(50% - 20px);min-width:0}
+.reader-stage.has-search .translation-preview-panel,
+.reader-stage.has-selection .translation-preview-panel{left:auto;right:8px;top:14px;bottom:58px;width:calc(50% - 20px);min-width:0;min-height:0;max-height:none}
